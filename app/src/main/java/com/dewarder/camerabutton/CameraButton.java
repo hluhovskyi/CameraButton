@@ -26,6 +26,7 @@ import static com.dewarder.camerabutton.CameraButton.State.PRESSED;
 import static com.dewarder.camerabutton.CameraButton.State.START_COLLAPSING;
 import static com.dewarder.camerabutton.CameraButton.State.START_EXPANDING;
 
+@SuppressWarnings("unused")
 public class CameraButton extends View {
 
     public interface OnStateChangeListener {
@@ -64,16 +65,24 @@ public class CameraButton extends View {
     private int mMainColorHovered = Color.parseColor("#eeeeee");
     private int mStrokeColor = Color.parseColor("#66FFFFFF");
     private int mStrokeColorHovered = Color.parseColor("#44FFFFFF");
+    private int[] mProgressColors = {
+            Color.parseColor("#feda75"),
+            Color.parseColor("#fa7e1e"),
+            Color.parseColor("#d62976"),
+            Color.parseColor("#962fbf"),
+            Color.parseColor("#4f5bd5")
+    };
 
     //Durations
-    private long mExpandDuration = 2000;
-    private long mCollapseDuration = 2000;
+    private long mExpandDuration = 200;
+    private long mCollapseDuration = 200;
     private long mExpandDelay = 400;
     private long mMaxDuration = 15000;
 
     //Logic
     private State mCurrentState = DEFAULT;
     private boolean mExpanded = false;
+    private float mGradientRotationMultiplier = 1.75f;
     private float mExpandingFactor = 0f;
     private float mProgressFactor = 0f;
     private RectF mExpandedArea = null;
@@ -124,7 +133,6 @@ public class CameraButton extends View {
         mProgressArcPaint.setStyle(Paint.Style.STROKE);
         mProgressArcPaint.setStrokeWidth(mProgressArcWidth);
         mProgressArcPaint.setStrokeCap(Paint.Cap.ROUND);
-        mProgressArcPaint.setShader(new LinearGradient(0, 0, 400, 400, Color.RED, Color.GREEN, Shader.TileMode.MIRROR));
     }
 
     @Override
@@ -135,7 +143,6 @@ public class CameraButton extends View {
                 mExpandMessage = () -> {
                     mExpanded = true;
                     mProgressFactor = 0f;
-
                     mExpandAnimator = createExpandingAnimator();
                     mExpandAnimator.start();
                 };
@@ -143,6 +150,7 @@ public class CameraButton extends View {
 
                 mMainPaint.setColor(mMainColorHovered);
                 mStrokePaint.setColor(mStrokeColorHovered);
+
                 invalidate();
                 dispatchStateChange(PRESSED);
                 return true;
@@ -153,7 +161,6 @@ public class CameraButton extends View {
                     if (mExpandAnimator != null) {
                         mExpandAnimator.cancel();
                     }
-
                     mCollapseAnimator = createCollapsingAnimator();
                     mCollapseAnimator.start();
                 } else {
@@ -164,6 +171,7 @@ public class CameraButton extends View {
 
                 mMainPaint.setColor(mMainColor);
                 mStrokePaint.setColor(mStrokeColor);
+
                 invalidate();
                 return true;
             }
@@ -185,13 +193,7 @@ public class CameraButton extends View {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                mProgressAnimator = ValueAnimator.ofFloat(0f, 1f);
-                mProgressAnimator.setInterpolator(LINEAR_INTERPOLATOR);
-                mProgressAnimator.addUpdateListener(animation1 -> {
-                    mProgressFactor = (float) animation1.getAnimatedValue();
-                    invalidate();
-                });
-                mProgressAnimator.setDuration(mMaxDuration);
+                mProgressAnimator = createProgressAnimator();
                 mProgressAnimator.start();
                 dispatchStateChange(EXPANDED);
             }
@@ -235,26 +237,56 @@ public class CameraButton extends View {
         return animator;
     }
 
+    private ValueAnimator createProgressAnimator() {
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        animator.setInterpolator(LINEAR_INTERPOLATOR);
+        animator.addUpdateListener(animation -> {
+            mProgressFactor = (float) animation.getAnimatedValue();
+            invalidate();
+        });
+        animator.setDuration(mMaxDuration);
+        return animator;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
-        int centerX = canvas.getWidth() / 2;
-        int centerY = canvas.getHeight() / 2;
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+        int centerX = width / 2;
+        int centerY = height / 2;
 
-        float strokeCollapsedRadius = mCollapsedRadius + mCollapsedStrokeWidth;
         if (mExpandedArea == null) {
-            float expandedAreaOffset = mProgressArcWidth / 2f;
-            mExpandedArea = new RectF(
-                    expandedAreaOffset,
-                    expandedAreaOffset,
-                    getWidth() - expandedAreaOffset,
-                    getHeight() - expandedAreaOffset);
+            mExpandedArea = calculateExpandedArea(width, height);
+            mProgressArcPaint.setShader(createGradient(width, height));
         }
 
+        float strokeCollapsedRadius = mCollapsedRadius + mCollapsedStrokeWidth;
         canvas.drawCircle(centerX, centerY, strokeCollapsedRadius - (strokeCollapsedRadius - Math.max(centerX, centerY)) * mExpandingFactor, mStrokePaint);
-        canvas.drawArc(mExpandedArea, START_ANGLE, SWEEP_ANGLE * mProgressFactor, false, mProgressArcPaint);
+
+        //Rotate whole canvas and reduce rotation from start angle of progress arc.
+        //It allows to rotate gradient shader without rotating arc in the end.
+        canvas.save();
+        float gradientRotation = SWEEP_ANGLE * mProgressFactor * mGradientRotationMultiplier;
+        canvas.rotate(gradientRotation, centerX, centerY);
+        canvas.drawArc(mExpandedArea, START_ANGLE - gradientRotation, SWEEP_ANGLE * mProgressFactor, false, mProgressArcPaint);
+        canvas.restore();
 
         float radius = mCollapsedRadius - (mCollapsedRadius - mExpandedRadius) * mExpandingFactor;
         canvas.drawCircle(centerX, centerY, radius, mMainPaint);
+    }
+
+    private RectF calculateExpandedArea(int width, int height) {
+        float expandedAreaOffset = mProgressArcWidth / 2f;
+        return new RectF(
+                expandedAreaOffset,
+                expandedAreaOffset,
+                width - expandedAreaOffset,
+                height - expandedAreaOffset);
+    }
+
+    private Shader createGradient(int width, int height) {
+        return new LinearGradient(0, 0, width, height,
+                                  mProgressColors, null, Shader.TileMode.MIRROR);
     }
 
     public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
@@ -273,7 +305,6 @@ public class CameraButton extends View {
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
         }
-
         if (mHoldListener != null) {
             if (state == EXPANDED) {
                 mHoldListener.onStart();
@@ -281,13 +312,11 @@ public class CameraButton extends View {
                 mHoldListener.onFinish();
             }
         }
-
         if (mTapListener != null) {
             if (mCurrentState == PRESSED && state == DEFAULT) {
                 mTapListener.onTap();
             }
         }
-
         mCurrentState = state;
     }
 
