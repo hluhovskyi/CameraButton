@@ -9,7 +9,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         findViewById<CameraButton>(R.id.camera_button).apply {
             setOnHoldEventListener(object : CameraButton.OnHoldEventListener {
                 override fun onStart() {

@@ -11,8 +11,11 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -45,6 +48,10 @@ public class CameraButton extends View {
         void onCancel();
     }
 
+    public interface OnProgressChangeListener {
+        void onProgressChanged(@FloatRange(from = 0, to = 1) float progress);
+    }
+
     private static final float START_ANGLE = -90f;
     private static final float SWEEP_ANGLE = 360f;
 
@@ -55,17 +62,17 @@ public class CameraButton extends View {
     private final Paint mProgressArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     //Sizes
+    private int mMainCircleRadius = 56;
+    private int mMainCircleRadiusExpanded = 48;
+    private int mStrokeWidth = 24;
     private int mProgressArcWidth = 8;
-    private int mCollapsedRadius = 56;
-    private int mCollapsedStrokeWidth = 24;
-    private int mExpandedRadius = 48;
 
     //Colors
-    private int mMainColor = Color.WHITE;
-    private int mMainColorHovered = Color.parseColor("#eeeeee");
+    private int mMainCircleColor = Color.WHITE;
+    private int mMainCircleColorPressed = Color.parseColor("#eeeeee");
     private int mStrokeColor = Color.parseColor("#66FFFFFF");
-    private int mStrokeColorHovered = Color.parseColor("#44FFFFFF");
-    private int[] mProgressColors = {
+    private int mStrokeColorPressed = Color.parseColor("#44FFFFFF");
+    private int[] mProgressArcColors = {
             Color.parseColor("#feda75"),
             Color.parseColor("#fa7e1e"),
             Color.parseColor("#d62976"),
@@ -77,11 +84,10 @@ public class CameraButton extends View {
     private long mExpandDuration = 200;
     private long mCollapseDuration = 200;
     private long mExpandDelay = 400;
-    private long mMaxDuration = 15000;
+    private long mHoldDuration = 15000;
 
     //Logic
     private State mCurrentState = DEFAULT;
-    private boolean mExpanded = false;
     private float mGradientRotationMultiplier = 1.75f;
     private float mExpandingFactor = 0f;
     private float mProgressFactor = 0f;
@@ -97,6 +103,7 @@ public class CameraButton extends View {
     private OnStateChangeListener mStateListener;
     private OnTapEventListener mTapListener;
     private OnHoldEventListener mHoldListener;
+    private OnProgressChangeListener mProgressListener;
 
     public CameraButton(Context context) {
         super(context);
@@ -127,7 +134,7 @@ public class CameraButton extends View {
     }
 
     private void init() {
-        mMainPaint.setColor(mMainColor);
+        mMainPaint.setColor(mMainCircleColor);
         mStrokePaint.setColor(mStrokeColor);
 
         mProgressArcPaint.setStyle(Paint.Style.STROKE);
@@ -141,37 +148,29 @@ public class CameraButton extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 mExpandMessage = () -> {
-                    mExpanded = true;
                     mProgressFactor = 0f;
                     mExpandAnimator = createExpandingAnimator();
                     mExpandAnimator.start();
                 };
                 postDelayed(mExpandMessage, mExpandDelay);
-
-                mMainPaint.setColor(mMainColorHovered);
-                mStrokePaint.setColor(mStrokeColorHovered);
-
+                makePaintColorsHovered(true);
                 invalidate();
                 dispatchStateChange(PRESSED);
                 return true;
             }
 
             case MotionEvent.ACTION_UP: {
-                if (mExpanded) {
+                if (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED) {
                     if (mExpandAnimator != null) {
                         mExpandAnimator.cancel();
                     }
                     mCollapseAnimator = createCollapsingAnimator();
                     mCollapseAnimator.start();
-                } else {
+                } else if (mCurrentState == PRESSED) {
                     removeCallbacks(mExpandMessage);
                     dispatchStateChange(DEFAULT);
                 }
-                mExpanded = false;
-
-                mMainPaint.setColor(mMainColor);
-                mStrokePaint.setColor(mStrokeColor);
-
+                makePaintColorsHovered(false);
                 invalidate();
                 return true;
             }
@@ -220,6 +219,7 @@ public class CameraButton extends View {
                     mProgressAnimator.cancel();
                 }
                 mProgressFactor = 0f;
+                makePaintColorsHovered(false);
                 dispatchStateChange(START_COLLAPSING);
             }
 
@@ -242,10 +242,33 @@ public class CameraButton extends View {
         animator.setInterpolator(LINEAR_INTERPOLATOR);
         animator.addUpdateListener(animation -> {
             mProgressFactor = (float) animation.getAnimatedValue();
+            dispatchProgressChange(mProgressFactor);
             invalidate();
         });
-        animator.setDuration(mMaxDuration);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCollapseAnimator = createCollapsingAnimator();
+                mCollapseAnimator.start();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                animation.removeAllListeners();
+            }
+        });
+        animator.setDuration(mHoldDuration);
         return animator;
+    }
+
+    private void makePaintColorsHovered(boolean hovered) {
+        if (hovered) {
+            mMainPaint.setColor(mMainCircleColorPressed);
+            mStrokePaint.setColor(mStrokeColorPressed);
+        } else {
+            mMainPaint.setColor(mMainCircleColor);
+            mStrokePaint.setColor(mStrokeColor);
+        }
     }
 
     @Override
@@ -260,7 +283,7 @@ public class CameraButton extends View {
             mProgressArcPaint.setShader(createGradient(width, height));
         }
 
-        float strokeCollapsedRadius = mCollapsedRadius + mCollapsedStrokeWidth;
+        float strokeCollapsedRadius = mMainCircleRadius + mStrokeWidth;
         canvas.drawCircle(centerX, centerY, strokeCollapsedRadius - (strokeCollapsedRadius - Math.max(centerX, centerY)) * mExpandingFactor, mStrokePaint);
 
         //Rotate whole canvas and reduce rotation from start angle of progress arc.
@@ -271,7 +294,7 @@ public class CameraButton extends View {
         canvas.drawArc(mExpandedArea, START_ANGLE - gradientRotation, SWEEP_ANGLE * mProgressFactor, false, mProgressArcPaint);
         canvas.restore();
 
-        float radius = mCollapsedRadius - (mCollapsedRadius - mExpandedRadius) * mExpandingFactor;
+        float radius = mMainCircleRadius - (mMainCircleRadius - mMainCircleRadiusExpanded) * mExpandingFactor;
         canvas.drawCircle(centerX, centerY, radius, mMainPaint);
     }
 
@@ -286,19 +309,7 @@ public class CameraButton extends View {
 
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
-                                  mProgressColors, null, Shader.TileMode.MIRROR);
-    }
-
-    public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
-        mStateListener = listener;
-    }
-
-    public void setOnTapEventListener(@Nullable OnTapEventListener listener) {
-        mTapListener = listener;
-    }
-
-    public void setOnHoldEventListener(@Nullable OnHoldEventListener listener) {
-        mHoldListener = listener;
+                                  mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
     private void dispatchStateChange(State state) {
@@ -319,6 +330,169 @@ public class CameraButton extends View {
         }
         mCurrentState = state;
     }
+
+    private void dispatchProgressChange(float progress) {
+        if (mProgressListener != null) {
+            mProgressListener.onProgressChanged(progress);
+        }
+    }
+
+    //==============================
+    //       Getters/Setters
+    //==============================
+
+    public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
+        mStateListener = listener;
+    }
+
+    public void setOnTapEventListener(@Nullable OnTapEventListener listener) {
+        mTapListener = listener;
+    }
+
+    public void setOnHoldEventListener(@Nullable OnHoldEventListener listener) {
+        mHoldListener = listener;
+    }
+
+    public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
+        mProgressListener = listener;
+    }
+
+    @Px
+    public int getMainCircleRadius() {
+        return mMainCircleRadius;
+    }
+
+    public void setMainCircleRadius(@Px int radius) {
+        mMainCircleRadius = radius;
+        invalidate();
+    }
+
+    @Px
+    public int getMainCircleRadiusExpanded() {
+        return mMainCircleRadiusExpanded;
+    }
+
+    public void setMainCircleRadiusExpanded(@Px int radius) {
+        mMainCircleRadiusExpanded = radius;
+        invalidate();
+    }
+
+    @Px
+    public int getStrokeWidth() {
+        return mStrokeWidth;
+    }
+
+    public void setStrokeWidth(@Px int width) {
+        mStrokeWidth = width;
+        invalidate();
+    }
+
+    @Px
+    public int getProgressArcWidth() {
+        return mProgressArcWidth;
+    }
+
+    public void setProgressArcWidth(@Px int width) {
+        mProgressArcWidth = width;
+        invalidate();
+    }
+
+    @ColorInt
+    public int getMainCircleColor() {
+        return mMainCircleColor;
+    }
+
+    public void setMainCircleColor(@ColorInt int color) {
+        mMainCircleColor = color;
+    }
+
+    @ColorInt
+    public int getMainCircleColorPressed() {
+        return mMainCircleColorPressed;
+    }
+
+    public void setMainCircleColorPressed(@ColorInt int color) {
+        mMainCircleColorPressed = color;
+    }
+
+    @ColorInt
+    public int getStrokeColor() {
+        return mStrokeColor;
+    }
+
+    public void setStrokeColor(@ColorInt int color) {
+        mStrokeColor = color;
+    }
+
+    @ColorInt
+    public int getStrokeColorPressed() {
+        return mStrokeColorPressed;
+    }
+
+    public void setStrokeColorPressed(@ColorInt int color) {
+        mStrokeColorPressed = color;
+    }
+
+    @ColorInt
+    @NonNull
+    public int[] getProgressArcColors() {
+        return mProgressArcColors.clone();
+    }
+
+    public void setProgressArcColors(@ColorInt @NonNull int[] colors) {
+        mProgressArcColors = Objects.requireNonNull(colors).clone();
+    }
+
+    public long getExpandDuration() {
+        return mExpandDuration;
+    }
+
+    public void setExpandDuration(long duration) {
+        mExpandDuration = duration;
+    }
+
+    public long getCollapseDuration() {
+        return mCollapseDuration;
+    }
+
+    public void setCollapseDuration(long duration) {
+        mCollapseDuration = duration;
+    }
+
+    public long getExpandDelay() {
+        return mExpandDelay;
+    }
+
+    public void setExpandDelay(long delay) {
+        mExpandDelay = delay;
+    }
+
+    public long getHoldDuration() {
+        return mHoldDuration;
+    }
+
+    public void setHoldDuration(long duration) {
+        mHoldDuration = duration;
+    }
+
+    @FloatRange(from = 0, fromInclusive = false)
+    public float getGradientRotationMultiplier() {
+        return mGradientRotationMultiplier;
+    }
+
+    public void setGradientRotationMultiplier(
+            @FloatRange(from = 0, fromInclusive = false) float multiplier) {
+
+        if (multiplier <= 0) {
+            throw new IllegalStateException("Multiplier should be greater than 0");
+        }
+        mGradientRotationMultiplier = multiplier;
+    }
+
+
+    //=================================
+    //       Additional classes
+    //=================================
 
     public enum State {
         DEFAULT,

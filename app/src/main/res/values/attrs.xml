@@ -1,0 +1,19 @@
+<resources>
+
+    <declare-styleable name="CameraButton">
+        <attr name="cb_main_circle_color" format="color"/>
+        <attr name="cb_main_circle_color_pressed" format="color"/>
+        <attr name="cb_main_circle_radius" format="dimension"/>
+        <attr name="cb_main_circle_radius_expanded" format="dimension"/>
+        <attr name="cb_stroke_color" format="color"/>
+        <attr name="cb_stroke_color_pressed" format="color"/>
+        <attr name="cb_stroke_width" format="dimension"/>
+        <attr name="cb_progress_arc_colors" format="reference"/>
+        <attr name="cb_progress_arc_width" format="dimension"/>
+        <attr name="cb_gradient_rotation_multiplier" format="float"/>
+        <attr name="cb_expand_duration" format="integer"/>
+        <attr name="cb_expand_delay" format="integer"/>
+        <attr name="cb_collapse_duration" format="integer"/>
+        <attr name="cb_hold_duration" format="integer"/>
+    </declare-styleable>
+</resources>
