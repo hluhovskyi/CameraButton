@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -28,6 +29,7 @@ import static com.dewarder.camerabutton.CameraButton.State.EXPANDED;
 import static com.dewarder.camerabutton.CameraButton.State.PRESSED;
 import static com.dewarder.camerabutton.CameraButton.State.START_COLLAPSING;
 import static com.dewarder.camerabutton.CameraButton.State.START_EXPANDING;
+import static com.dewarder.camerabutton.TypedArrayHelper.getDimension;
 
 @SuppressWarnings("unused")
 public class CameraButton extends View {
@@ -57,15 +59,15 @@ public class CameraButton extends View {
 
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
 
-    private final Paint mMainPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mMainCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mProgressArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     //Sizes
-    private int mMainCircleRadius = 56;
-    private int mMainCircleRadiusExpanded = 48;
-    private int mStrokeWidth = 24;
-    private int mProgressArcWidth = 8;
+    private int mMainCircleRadius;
+    private int mMainCircleRadiusExpanded;
+    private int mStrokeWidth;
+    private int mProgressArcWidth;
 
     //Colors
     private int mMainCircleColor = Color.WHITE;
@@ -106,14 +108,12 @@ public class CameraButton extends View {
     private OnProgressChangeListener mProgressListener;
 
     public CameraButton(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public CameraButton(Context context,
                         @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public CameraButton(Context context,
@@ -121,7 +121,7 @@ public class CameraButton extends View {
                         int defStyleAttr) {
 
         super(context, attrs, defStyleAttr);
-        init();
+        init(context, attrs, defStyleAttr, 0);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -130,11 +130,40 @@ public class CameraButton extends View {
                         int defStyleAttr,
                         int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+        init(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void init() {
-        mMainPaint.setColor(mMainCircleColor);
+    private void init(Context context,
+                      AttributeSet attrs,
+                      int defStyleAttr,
+                      int defStyleRes) {
+
+        TypedArray array = context.obtainStyledAttributes(
+                attrs, R.styleable.CameraButton, defStyleAttr, defStyleRes);
+
+        mMainCircleRadius = getDimension(
+                context, array,
+                R.styleable.CameraButton_cb_main_circle_radius,
+                R.dimen.cb_main_circle_radius_default);
+
+        mMainCircleRadiusExpanded = getDimension(
+                context, array,
+                R.styleable.CameraButton_cb_main_circle_radius_expanded,
+                R.dimen.cb_main_circle_radius_expanded_default);
+
+        mStrokeWidth = getDimension(
+                context, array,
+                R.styleable.CameraButton_cb_stroke_width,
+                R.dimen.cb_stroke_width_default);
+
+        mProgressArcWidth = getDimension(
+                context, array,
+                R.styleable.CameraButton_cb_progress_arc_width,
+                R.dimen.cb_progress_arc_width_default);
+
+        array.recycle();
+
+        mMainCirclePaint.setColor(mMainCircleColor);
         mStrokePaint.setColor(mStrokeColor);
 
         mProgressArcPaint.setStyle(Paint.Style.STROKE);
@@ -263,10 +292,10 @@ public class CameraButton extends View {
 
     private void makePaintColorsHovered(boolean hovered) {
         if (hovered) {
-            mMainPaint.setColor(mMainCircleColorPressed);
+            mMainCirclePaint.setColor(mMainCircleColorPressed);
             mStrokePaint.setColor(mStrokeColorPressed);
         } else {
-            mMainPaint.setColor(mMainCircleColor);
+            mMainCirclePaint.setColor(mMainCircleColor);
             mStrokePaint.setColor(mStrokeColor);
         }
     }
@@ -295,7 +324,7 @@ public class CameraButton extends View {
         canvas.restore();
 
         float radius = mMainCircleRadius - (mMainCircleRadius - mMainCircleRadiusExpanded) * mExpandingFactor;
-        canvas.drawCircle(centerX, centerY, radius, mMainPaint);
+        canvas.drawCircle(centerX, centerY, radius, mMainCirclePaint);
     }
 
     private RectF calculateExpandedArea(int width, int height) {
