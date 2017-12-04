@@ -1,3 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="cb_main_circle_color_default">#ffffff</color>
+    <color name="cb_main_circle_color_pressed_default">#eeeeee</color>
+    <color name="cb_stroke_color_default">#66FFFFFF</color>
+    <color name="cb_stroke_color_pressed_default">#44FFFFFF</color>
+
+    <color name="cb_progress_arc_color_default_1">#feda75</color>
+    <color name="cb_progress_arc_color_default_2">#fa7e1e</color>
+    <color name="cb_progress_arc_color_default_3">#d62976</color>
+    <color name="cb_progress_arc_color_default_4">#962fbf</color>
+    <color name="cb_progress_arc_color_default_5">#4f5bd5</color>
+
+    <array name="cb_progress_arc_colors_default">
+        <item>@color/cb_progress_arc_color_default_1</item>
+        <item>@color/cb_progress_arc_color_default_2</item>
+        <item>@color/cb_progress_arc_color_default_3</item>
+        <item>@color/cb_progress_arc_color_default_4</item>
+        <item>@color/cb_progress_arc_color_default_5</item>
+    </array>
 </resources>
