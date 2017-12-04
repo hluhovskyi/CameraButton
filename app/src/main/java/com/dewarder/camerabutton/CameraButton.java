@@ -215,16 +215,18 @@ public class CameraButton extends View {
         final int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
-                mExpandMessage = () -> {
-                    mProgressFactor = 0f;
-                    mExpandAnimator = createExpandingAnimator();
-                    mExpandAnimator.start();
-                };
-                postDelayed(mExpandMessage, mExpandDelay);
-                makePaintColorsHovered(true);
-                invalidate();
-                dispatchStateChange(PRESSED);
-                return true;
+                if (isEnabled() && isTouched(event)) {
+                    mExpandMessage = () -> {
+                        mProgressFactor = 0f;
+                        mExpandAnimator = createExpandingAnimator();
+                        mExpandAnimator.start();
+                    };
+                    postDelayed(mExpandMessage, mExpandDelay);
+                    makePaintColorsHovered(true);
+                    invalidate();
+                    dispatchStateChange(PRESSED);
+                    return true;
+                }
             }
 
             case MotionEvent.ACTION_UP: {
@@ -234,16 +236,27 @@ public class CameraButton extends View {
                     }
                     mCollapseAnimator = createCollapsingAnimator();
                     mCollapseAnimator.start();
+
+                    makePaintColorsHovered(false);
+                    invalidate();
+                    return true;
                 } else if (mCurrentState == PRESSED) {
                     removeCallbacks(mExpandMessage);
                     dispatchStateChange(DEFAULT);
+
+                    makePaintColorsHovered(false);
+                    invalidate();
+                    return true;
                 }
-                makePaintColorsHovered(false);
-                invalidate();
-                return true;
             }
         }
         return false;
+    }
+
+    private boolean isTouched(MotionEvent e) {
+        int radius = mMainCircleRadius + mStrokeWidth;
+        return Math.abs(e.getX() - getWidth() / 2f) <= radius &&
+                Math.abs(e.getY() - getHeight() / 2f) <= radius;
     }
 
     private ValueAnimator createExpandingAnimator() {
@@ -399,7 +412,8 @@ public class CameraButton extends View {
             }
         }
         if (mTapListener != null) {
-            if (mCurrentState == PRESSED && state == DEFAULT) {
+            if (mCurrentState == PRESSED && state == DEFAULT ||
+                    mCurrentState == START_EXPANDING && state == START_COLLAPSING) {
                 mTapListener.onTap();
             }
         }
