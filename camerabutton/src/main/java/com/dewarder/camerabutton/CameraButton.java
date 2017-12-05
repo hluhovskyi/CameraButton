@@ -91,6 +91,7 @@ public class CameraButton extends View {
     private float mExpandingFactor = 0f;
     private float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
+    private boolean mInvalidateGradient = true;
 
     //Cancellable
     private ValueAnimator mExpandAnimator = null;
@@ -224,20 +225,7 @@ public class CameraButton extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 if (isEnabled() && isTouched(event)) {
-                    if (mCurrentMode.isHoldAllowed()) {
-                        mExpandMessage = () -> {
-                            mProgressFactor = 0f;
-                            mExpandAnimator = createExpandingAnimator();
-                            mExpandAnimator.start();
-                        };
-
-                        if (mCurrentMode.isTapAllowed()) {
-                            postDelayed(mExpandMessage, mExpandDelay);
-                        } else {
-                            post(mExpandMessage);
-                        }
-                    }
-
+                    postExpandingMessageIfNeeded();
                     makePaintColorsHovered(true);
                     invalidate();
                     dispatchStateChange(PRESSED);
@@ -269,10 +257,40 @@ public class CameraButton extends View {
         return false;
     }
 
+    /**
+     * Checks if button area is touched.
+     * It operates with square to react on a little bigger part of the view.
+     *
+     * @param e - touch event with down action
+     * @return is collapsed button area is touched
+     */
     private boolean isTouched(MotionEvent e) {
         int radius = mMainCircleRadius + mStrokeWidth;
         return Math.abs(e.getX() - getWidth() / 2f) <= radius &&
                 Math.abs(e.getY() - getHeight() / 2f) <= radius;
+    }
+
+    /**
+     * Post message about to start expanding to the handler in case if mode allows it.
+     * If mode also allows to tap the button message will be send with
+     * {@link CameraButton#mExpandDelay} delay
+     */
+    private void postExpandingMessageIfNeeded() {
+        if (mCurrentMode.isHoldAllowed()) {
+            mExpandMessage = () -> {
+                mProgressFactor = 0f;
+                mExpandAnimator = createExpandingAnimator();
+                mExpandAnimator.start();
+            };
+
+            //In case when mode doesn't allow hold but not tap - post message immediately
+            //so button will start expanding right after a tap
+            if (mCurrentMode.isTapAllowed()) {
+                postDelayed(mExpandMessage, mExpandDelay);
+            } else {
+                post(mExpandMessage);
+            }
+        }
     }
 
     private ValueAnimator createExpandingAnimator() {
@@ -358,6 +376,11 @@ public class CameraButton extends View {
         return animator;
     }
 
+    /**
+     * Changes colors of main circle and stroke paints according to passed flag
+     *
+     * @param hovered - indicates is user touches view or not
+     */
     private void makePaintColorsHovered(boolean hovered) {
         if (hovered) {
             mMainCirclePaint.setColor(mMainCircleColorPressed);
@@ -378,7 +401,11 @@ public class CameraButton extends View {
 
         if (mProgressArcArea == null) {
             mProgressArcArea = new RectF();
+        }
+
+        if (mInvalidateGradient) {
             mProgressArcPaint.setShader(createGradient(width, height));
+            mInvalidateGradient = false;
         }
 
         float strokeCollapsedRadius = mMainCircleRadius + mStrokeWidth;
@@ -411,11 +438,24 @@ public class CameraButton extends View {
         mProgressArcArea.right = centerX + strokeRadius - expandedAreaOffset;
     }
 
+    /**
+     * Creates gradient shader for progress arc
+     *
+     * @param width  - width of the canvas
+     * @param height - height of the canvas
+     * @return gradient shader
+     */
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
                 mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
+    /**
+     * Handle state changing. Notifies all listener except {@link CameraButton#mProgressListener}
+     * about corresponding events.
+     *
+     * @param state - new state of the button
+     */
     private void dispatchStateChange(State state) {
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
@@ -436,6 +476,11 @@ public class CameraButton extends View {
         mCurrentState = state;
     }
 
+    /**
+     * Handle progress changing. Notifies {@link CameraButton#mProgressListener} only.
+     *
+     * @param progress - new progress value
+     */
     private void dispatchProgressChange(float progress) {
         if (mProgressListener != null) {
             mProgressListener.onProgressChanged(progress);
@@ -546,6 +591,8 @@ public class CameraButton extends View {
 
     public void setProgressArcColors(@ColorInt @NonNull int[] colors) {
         mProgressArcColors = Constraints.checkNonNull(colors).clone();
+        mInvalidateGradient = true;
+        invalidate();
     }
 
     @IntRange(from = 1)

@@ -1,4 +1,5 @@
 <resources>
+
     <color name="cb_main_circle_color_default">#ffffff</color>
     <color name="cb_main_circle_color_pressed_default">#eeeeee</color>
     <color name="cb_stroke_color_default">#66FFFFFF</color>
@@ -17,4 +18,5 @@
         <item>@color/cb_progress_arc_color_default_4</item>
         <item>@color/cb_progress_arc_color_default_5</item>
     </array>
+
 </resources>
