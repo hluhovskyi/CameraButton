@@ -1,1 +1,1 @@
-include ':sample', ':camerabutton'
+include ':sample', ':camerabutton', ':camerabutton-rx'
