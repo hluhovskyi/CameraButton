@@ -56,6 +56,8 @@ public class CameraButton extends View {
     }
 
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
+
+    private static final int DEFAULT_MODE_INDEX = 0;
     private static final float START_ANGLE = -90f;
     private static final float SWEEP_ANGLE = 360f;
 
@@ -83,6 +85,7 @@ public class CameraButton extends View {
     private long mHoldDuration;
 
     //Logic
+    private Mode mCurrentMode;
     private State mCurrentState = DEFAULT;
     private float mGradientRotationMultiplier = 1.75f;
     private float mExpandingFactor = 0f;
@@ -200,6 +203,11 @@ public class CameraButton extends View {
                         R.styleable.CameraButton_cb_hold_duration,
                         R.integer.cb_hold_duration_default));
 
+        mCurrentMode = Mode.fromValue(
+                array.getInteger(
+                        R.styleable.CameraButton_cb_mode,
+                        DEFAULT_MODE_INDEX));
+
         array.recycle();
 
         mMainCirclePaint.setColor(mMainCircleColor);
@@ -216,12 +224,20 @@ public class CameraButton extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 if (isEnabled() && isTouched(event)) {
-                    mExpandMessage = () -> {
-                        mProgressFactor = 0f;
-                        mExpandAnimator = createExpandingAnimator();
-                        mExpandAnimator.start();
-                    };
-                    postDelayed(mExpandMessage, mExpandDelay);
+                    if (mCurrentMode.isHoldAllowed()) {
+                        mExpandMessage = () -> {
+                            mProgressFactor = 0f;
+                            mExpandAnimator = createExpandingAnimator();
+                            mExpandAnimator.start();
+                        };
+
+                        if (mCurrentMode.isTapAllowed()) {
+                            postDelayed(mExpandMessage, mExpandDelay);
+                        } else {
+                            post(mExpandMessage);
+                        }
+                    }
+
                     makePaintColorsHovered(true);
                     invalidate();
                     dispatchStateChange(PRESSED);
@@ -404,14 +420,14 @@ public class CameraButton extends View {
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
         }
-        if (mHoldListener != null) {
+        if (mHoldListener != null && mCurrentMode.isHoldAllowed()) {
             if (state == EXPANDED) {
                 mHoldListener.onStart();
             } else if (mCurrentState == EXPANDED && state == START_COLLAPSING) {
                 mHoldListener.onFinish();
             }
         }
-        if (mTapListener != null) {
+        if (mTapListener != null && mCurrentMode.isTapAllowed()) {
             if (mCurrentState == PRESSED && state == DEFAULT ||
                     mCurrentState == START_EXPANDING && state == START_COLLAPSING) {
                 mTapListener.onTap();
@@ -583,8 +599,17 @@ public class CameraButton extends View {
     }
 
     @NonNull
-    public State getCurrentState() {
+    public State getState() {
         return mCurrentState;
+    }
+
+    @NonNull
+    public Mode getMode() {
+        return mCurrentMode;
+    }
+
+    public void setMode(@NonNull Mode mode) {
+        mCurrentMode = Constraints.checkNonNull(mode);
     }
 
     //=================================
@@ -597,5 +622,40 @@ public class CameraButton extends View {
         START_EXPANDING,
         EXPANDED,
         START_COLLAPSING
+    }
+
+    public enum Mode {
+        ALL(true, true),
+        TAP(true, false),
+        HOLD(false, true);
+
+        private final boolean mTapAllowed;
+        private final boolean mHoldAllowed;
+
+        Mode(boolean tapAllowed, boolean holdAllowed) {
+            mTapAllowed = tapAllowed;
+            mHoldAllowed = holdAllowed;
+        }
+
+        private static Mode fromValue(int value) {
+            switch (value) {
+                case 0:
+                    return ALL;
+                case 1:
+                    return TAP;
+                case 2:
+                    return HOLD;
+                default:
+                    throw new IllegalStateException("No mode corresponding to value " + value);
+            }
+        }
+
+        public boolean isTapAllowed() {
+            return mTapAllowed;
+        }
+
+        public boolean isHoldAllowed() {
+            return mHoldAllowed;
+        }
     }
 }

@@ -15,5 +15,10 @@
         <attr name="cb_expand_delay" format="integer"/>
         <attr name="cb_collapse_duration" format="integer"/>
         <attr name="cb_hold_duration" format="integer"/>
+        <attr name="cb_mode" format="enum">
+            <enum name="all" value="0"/>
+            <enum name="tap" value="1"/>
+            <enum name="hold" value="2"/>
+        </attr>
     </declare-styleable>
 </resources>
