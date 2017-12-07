@@ -1,18 +1,14 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
-
-
-
+    compileSdkVersion sdk_version
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 26
+        minSdkVersion min_sdk_version
+        targetSdkVersion sdk_version
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -21,17 +17,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    debugApi project(":camerabutton")
 
-    api project(":camerabutton")
+    implementation "com.android.support:appcompat-v7:$support_library_version"
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    api 'io.reactivex.rxjava2:rxjava:2.1.7'
-    api 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    api "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    api "io.reactivex.rxjava2:rxandroid:$rxjava_android_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
