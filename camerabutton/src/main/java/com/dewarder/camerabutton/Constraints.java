@@ -1,12 +1,12 @@
 package com.dewarder.camerabutton;
 
-final class Constraints {
+public final class Constraints {
 
     private Constraints() {
         throw new InstantiationError();
     }
 
-    static <T> T checkNonNull(T obj) {
+    public static <T> T checkNonNull(T obj) {
         if (obj == null) {
             throw new NullPointerException("Non-null object required");
         }
