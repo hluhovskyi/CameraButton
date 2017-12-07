@@ -1,1 +1,1 @@
-include ':sample', ':camerabutton', ':camerabutton-rx'
+include ':sample', ':camerabutton', ':camerabutton-rx', ':camerabutton-rx-kotlin'
