@@ -1,8 +1,9 @@
 package com.dewarder.camerabutton
 
 import android.content.Context
-import android.support.annotation.AttrRes
-import android.support.annotation.DimenRes
+import android.graphics.Color
+import android.support.annotation.*
+import android.support.v4.content.ContextCompat
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,30 +18,234 @@ class CameraButtonInitializationTest {
 
     @Test
     fun testMainCircleRadiusDefaultInitializedCorrect() {
-        val button = CameraButton(context)
-        assertDimenEquals(button.mainCircleRadius, R.dimen.cb_main_circle_radius_default)
+        assertDefaultDimen(
+                dimenProvider = CameraButton::getMainCircleRadius,
+                dimenRes = R.dimen.cb_main_circle_radius_default)
     }
 
     @Test
     fun testMainCircleRadiusCustomInitializedCorrect() {
-        val dp = 1
-        val attrs = createAttrs(R.attr.cb_main_circle_radius, "${dp}dp")
-        val button = CameraButton(context, attrs)
-        assertEquals(button.mainCircleRadius, dp)
+        assertCustomDimen(
+                attr = R.attr.cb_main_circle_radius,
+                dimenProvider = CameraButton::getMainCircleRadius)
     }
 
     @Test
     fun testMainCircleRadiusExpandedDefaultInitializedCorrect() {
-        val button = CameraButton(context)
-        assertDimenEquals(button.mainCircleRadiusExpanded, R.dimen.cb_main_circle_radius_expanded_default)
+        assertDefaultDimen(
+                dimenProvider = CameraButton::getMainCircleRadiusExpanded,
+                dimenRes = R.dimen.cb_main_circle_radius_expanded_default)
     }
 
     @Test
     fun testMainCircleRadiusExpandedCustomInitializedCorrect() {
-        val dp = 1
-        val attrs = createAttrs(R.attr.cb_main_circle_radius_expanded, "${dp}dp")
+        assertCustomDimen(
+                attr = R.attr.cb_main_circle_radius_expanded,
+                dimenProvider = CameraButton::getMainCircleRadiusExpanded)
+    }
+
+    @Test
+    fun testStrokeWidthDefaultInitializedCorrect() {
+        assertDefaultDimen(
+                dimenProvider = CameraButton::getStrokeWidth,
+                dimenRes = R.dimen.cb_stroke_width_default)
+    }
+
+    @Test
+    fun testStrokeWidthCustomInitializedCorrect() {
+        assertCustomDimen(
+                attr = R.attr.cb_stroke_width,
+                dimenProvider = CameraButton::getStrokeWidth)
+    }
+
+    @Test
+    fun testProgressArcWidthDefaultInitializedCorrect() {
+        assertDefaultDimen(
+                dimenProvider = CameraButton::getProgressArcWidth,
+                dimenRes = R.dimen.cb_progress_arc_width_default)
+    }
+
+    @Test
+    fun testProgressArcWidthCustomInitializedCorrect() {
+        assertCustomDimen(
+                attr = R.attr.cb_progress_arc_width,
+                dimenProvider = CameraButton::getProgressArcWidth)
+    }
+
+    @Test
+    fun testMainCircleColorDefaultInitializedCorrect() {
+        assertDefaultColor(
+                colorProvider = CameraButton::getMainCircleColor,
+                colorRes = R.color.cb_main_circle_color_default)
+    }
+
+    @Test
+    fun testMainCircleColorCustomInitializedCorrect() {
+        assertCustomColor(
+                attr = R.attr.cb_main_circle_color,
+                colorProvider = CameraButton::getMainCircleColor)
+    }
+
+
+    @Test
+    fun testMainCircleColorPressedDefaultInitializedCorrect() {
+        assertDefaultColor(
+                colorProvider = CameraButton::getMainCircleColorPressed,
+                colorRes = R.color.cb_main_circle_color_pressed_default)
+    }
+
+    @Test
+    fun testMainCircleColorPressedCustomInitializedCorrect() {
+        assertCustomColor(
+                attr = R.attr.cb_main_circle_color_pressed,
+                colorProvider = CameraButton::getMainCircleColorPressed)
+    }
+
+    @Test
+    fun testStrokeColorDefaultInitializedCorrect() {
+        assertDefaultColor(
+                colorProvider = CameraButton::getStrokeColor,
+                colorRes = R.color.cb_stroke_color_default)
+    }
+
+    @Test
+    fun testStrokeColorCustomInitializedCorrect() {
+        assertCustomColor(
+                attr = R.attr.cb_stroke_color,
+                colorProvider = CameraButton::getStrokeColor)
+    }
+
+    @Test
+    fun testStrokeColorPressedDefaultInitializedCorrect() {
+        assertDefaultColor(
+                colorProvider = CameraButton::getStrokeColorPressed,
+                colorRes = R.color.cb_stroke_color_pressed_default)
+    }
+
+    @Test
+    fun testStrokeColorPressedCustomInitializedCorrect() {
+        assertCustomColor(
+                attr = R.attr.cb_stroke_color_pressed,
+                colorProvider = CameraButton::getStrokeColorPressed)
+    }
+
+    @Test
+    fun testExpandDurationDefaultInitializedCorrect() {
+        assertDefaultDuration(
+                durationProvider = CameraButton::getExpandDuration,
+                durationRes = R.integer.cb_expand_duration_default)
+    }
+
+    @Test
+    fun testExpandDurationCustomInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_expand_duration,
+                durationProvider = CameraButton::getExpandDuration)
+    }
+
+    @Test
+    fun testExpandDelayDefaultInitializedCorrect() {
+        assertDefaultDuration(
+                durationProvider = CameraButton::getExpandDelay,
+                durationRes = R.integer.cb_expand_delay_default)
+    }
+
+    @Test
+    fun testExpandDelayCustomInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_expand_delay,
+                durationProvider = CameraButton::getExpandDelay)
+    }
+
+    @Test
+    fun testCollapseDurationDefaultInitializedCorrect() {
+        assertDefaultDuration(
+                durationProvider = CameraButton::getCollapseDuration,
+                durationRes = R.integer.cb_collapse_duration_default)
+    }
+
+    @Test
+    fun testCollapseDurationCustomInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_collapse_duration,
+                durationProvider = CameraButton::getCollapseDuration)
+    }
+
+    @Test
+    fun testHoldDurationDefaultInitializedCorrect() {
+        assertDefaultDuration(
+                durationProvider = CameraButton::getHoldDuration,
+                durationRes = R.integer.cb_hold_duration_default)
+    }
+
+    @Test
+    fun testHoldDurationCustomInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_hold_duration,
+                durationProvider = CameraButton::getHoldDuration)
+    }
+
+    @Test
+    fun testModeDefaultInitializedCorrect() {
+        val button = CameraButton(context)
+        assertEquals(button.mode, CameraButton.Mode.ALL)
+    }
+
+    @Test
+    fun testModeAllCustomInitializedCorrect() {
+        val attrs = createAttrs(R.attr.cb_mode, "all")
         val button = CameraButton(context, attrs)
-        assertEquals(button.mainCircleRadiusExpanded, dp)
+        assertEquals(button.mode, CameraButton.Mode.ALL)
+    }
+
+    @Test
+    fun testModeTapCustomInitializedCorrect() {
+        val attrs = createAttrs(R.attr.cb_mode, "tap")
+        val button = CameraButton(context, attrs)
+        assertEquals(button.mode, CameraButton.Mode.TAP)
+    }
+
+    @Test
+    fun testModeHoldCustomInitializedCorrect() {
+        val attrs = createAttrs(R.attr.cb_mode, "hold")
+        val button = CameraButton(context, attrs)
+        assertEquals(button.mode, CameraButton.Mode.HOLD)
+    }
+
+    private fun assertDefaultDimen(dimenProvider: (CameraButton) -> Int, @DimenRes dimenRes: Int) {
+        val button = CameraButton(context)
+        assertEquals(dimenProvider(button), context.resources.getDimensionPixelSize(dimenRes))
+    }
+
+    private fun assertCustomDimen(@AttrRes attr: Int, dimenProvider: (CameraButton) -> Int) {
+        val dp = 1
+        val attrs = createAttrs(attr, "${dp}dp")
+        val button = CameraButton(context, attrs)
+        assertEquals(dimenProvider(button), dp)
+    }
+
+    private fun assertDefaultColor(colorProvider: (CameraButton) -> Int, @ColorRes colorRes: Int) {
+        val button = CameraButton(context)
+        assertEquals(colorProvider(button), ContextCompat.getColor(context, colorRes))
+    }
+
+    private fun assertCustomColor(@ArrayRes attr: Int, colorProvider: (CameraButton) -> Int) {
+        val color = "#000000"
+        val attrs = createAttrs(attr, color)
+        val button = CameraButton(context, attrs)
+        assertEquals(colorProvider(button), Color.parseColor(color))
+    }
+
+    private fun assertDefaultDuration(durationProvider: (CameraButton) -> Long, @IntegerRes durationRes: Int) {
+        val button = CameraButton(context)
+        assertEquals(durationProvider(button).toInt(), context.resources.getInteger(durationRes))
+    }
+
+    private fun assertCustomDuration(@AttrRes attr: Int, durationProvider: (CameraButton) -> Long) {
+        val duration = 1L
+        val attrs = createAttrs(attr, duration.toString())
+        val button = CameraButton(context, attrs)
+        assertEquals(durationProvider(button), duration)
     }
 
     private companion object {
@@ -52,9 +257,5 @@ class CameraButtonInitializationTest {
                 Robolectric.buildAttributeSet()
                         .addAttribute(attr, value)
                         .build()
-
-        fun assertDimenEquals(actual: Int, @DimenRes expectedRes: Int) {
-            assertEquals(actual, context.resources.getDimensionPixelSize(expectedRes))
-        }
     }
 }
