@@ -2,11 +2,14 @@ package com.dewarder.camerabutton.sample;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.Toast;
 
 import com.dewarder.camerabutton.CameraButton;
 
 public class MainActivity extends BaseActivity {
+
+    private static final long ANIMATION_TRANSLATION_DURATION = 200L;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,6 +31,18 @@ public class MainActivity extends BaseActivity {
             public void onCancel() {
             }
         });
+
+        getCameraButton().setOnStateChangeListener(this::onStateChanged);
+    }
+
+    private void onStateChanged(CameraButton.State state) {
+        if (state == CameraButton.State.START_EXPANDING) {
+            translateToRight(getFlashSwitch(), false);
+            translateToLeft(getCameraSwitch(), false);
+        } else if (state == CameraButton.State.START_COLLAPSING) {
+            translateToRight(getFlashSwitch(), true);
+            translateToLeft(getCameraSwitch(), true);
+        }
     }
 
     private void makePhoto() {
@@ -35,10 +50,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void startRecordVideo() {
-        Toast.makeText(this, "Start recording video...", Toast.LENGTH_SHORT).show();
     }
 
     private void finishRecordVideo() {
-        Toast.makeText(this, "Finish recording video...", Toast.LENGTH_SHORT).show();
+    }
+
+    private static void translateToRight(View view, boolean show) {
+        float x = show ? 0f : view.getWidth();
+        float alpha = show ? 1f : 0f;
+        view.animate().translationX(-x)
+                .alpha(alpha)
+                .setDuration(ANIMATION_TRANSLATION_DURATION);
+    }
+
+    private static void translateToLeft(View view, boolean show) {
+        float x = show ? 0f : view.getWidth();
+        float alpha = show ? 1f : 0f;
+        view.animate().translationX(x)
+                .alpha(alpha)
+                .setDuration(ANIMATION_TRANSLATION_DURATION);
     }
 }

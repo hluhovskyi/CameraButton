@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
 
 import com.dewarder.camerabutton.CameraButton;
@@ -24,6 +25,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     private CameraView mCameraView;
     private CameraButton mCameraButton;
 
+    private View mFlashSwitch;
+    private View mCameraSwitch;
+
     private Fotoapparat mCameraManager;
     private boolean mIsFlashEnabled;
 
@@ -35,8 +39,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         mCameraView = findViewById(R.id.camera_view);
         mCameraButton = findViewById(R.id.camera_button);
 
-        findViewById(R.id.flash_switch).setOnClickListener(v -> switchFlash());
-        findViewById(R.id.camera_switch).setOnClickListener(v -> switchCamera());
+        mFlashSwitch = findViewById(R.id.flash_switch);
+        mFlashSwitch.setOnClickListener(v -> switchFlash());
+
+        mCameraSwitch = findViewById(R.id.camera_switch);
+        mCameraSwitch.setOnClickListener(v -> switchCamera());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -96,5 +103,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     @NonNull
     public CameraButton getCameraButton() {
         return mCameraButton;
+    }
+
+    @NonNull
+    public View getFlashSwitch() {
+        return mFlashSwitch;
+    }
+
+    @NonNull
+    public View getCameraSwitch() {
+        return mCameraSwitch;
     }
 }
