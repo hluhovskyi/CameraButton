@@ -16,7 +16,7 @@ final class TapEventObservable extends Observable<TapEvent> {
 
     @Override
     protected void subscribeActual(Observer<? super TapEvent> observer) {
-        if (!Predictions.checkMainThread(observer)) {
+        if (!Preconditions.checkMainThread(observer)) {
             return;
         }
         Listener listener = new Listener(button, observer);

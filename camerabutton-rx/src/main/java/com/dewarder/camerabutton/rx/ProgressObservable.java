@@ -16,7 +16,7 @@ final class ProgressObservable extends Observable<Float> {
 
     @Override
     protected void subscribeActual(Observer<? super Float> observer) {
-        if (!Predictions.checkMainThread(observer)) {
+        if (!Preconditions.checkMainThread(observer)) {
             return;
         }
         Listener listener = new Listener(button, observer);

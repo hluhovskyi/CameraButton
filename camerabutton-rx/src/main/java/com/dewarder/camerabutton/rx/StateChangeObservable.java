@@ -18,7 +18,7 @@ final class StateChangeObservable extends Observable<CameraButton.State> {
 
     @Override
     protected void subscribeActual(Observer<? super CameraButton.State> observer) {
-        if (!Predictions.checkMainThread(observer)) {
+        if (!Preconditions.checkMainThread(observer)) {
             return;
         }
         Listener listener = new Listener(button, observer);

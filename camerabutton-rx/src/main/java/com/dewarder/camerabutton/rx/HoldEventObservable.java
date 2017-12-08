@@ -16,7 +16,7 @@ final class HoldEventObservable extends Observable<HoldEvent> {
 
     @Override
     protected void subscribeActual(Observer<? super HoldEvent> observer) {
-        if (!Predictions.checkMainThread(observer)) {
+        if (!Preconditions.checkMainThread(observer)) {
             return;
         }
         Listener listener = new Listener(button, observer);

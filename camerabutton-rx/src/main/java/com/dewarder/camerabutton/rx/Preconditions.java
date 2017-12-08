@@ -5,9 +5,9 @@ import android.os.Looper;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposables;
 
-final class Predictions {
+final class Preconditions {
 
-    private Predictions() {
+    private Preconditions() {
         throw new InstantiationError();
     }
 
