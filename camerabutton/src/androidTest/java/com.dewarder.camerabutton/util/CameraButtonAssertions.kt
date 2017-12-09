@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.dewarder.camerabutton.rx.kotlin
+package com.dewarder.camerabutton.util
+
+import android.support.test.espresso.matcher.BoundedMatcher
+import android.view.View
 
 import com.dewarder.camerabutton.CameraButton
-import com.dewarder.camerabutton.rx.HoldEvent
-import com.dewarder.camerabutton.rx.RxCameraButton
-import com.dewarder.camerabutton.rx.TapEvent
-import io.reactivex.Observable
 
-fun CameraButton.stateChanges(): Observable<CameraButton.State>
-        = RxCameraButton.stateChanges(this)
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 
-fun CameraButton.progress(): Observable<Float>
-        = RxCameraButton.progress(this)
+fun state(state: CameraButton.State): Matcher<in View> = StateMatcher(state)
 
-fun CameraButton.tapEvents(): Observable<TapEvent>
-        = RxCameraButton.tapEvents(this)
+private class StateMatcher(private val state: CameraButton.State) : BoundedMatcher<View, CameraButton>(CameraButton::class.java) {
 
-fun CameraButton.holdEvents(): Observable<HoldEvent>
-        = RxCameraButton.holdEvents(this)
+    override fun matchesSafely(item: CameraButton): Boolean {
+        return item.state == state
+    }
+
+    override fun describeTo(description: Description) {
+        description.appendText("with button state: " + state)
+    }
+}

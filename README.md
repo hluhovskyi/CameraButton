@@ -2,6 +2,26 @@
 
 Instagram-like button for taking photos or recording videos.
 
+## Getting started
+
+Add library as dependency to your `build.gradle`.
+
+WIP // Without any dependencies
+
+WIP // For RxJava2 users
+
+WIP // For RxJava2 and Kotlin users
+
+Please, feel free to open issues you are stuck with. PRs are also welcome :)
+
+## How to use?
+
+WIP
+
+## Customization
+
+WIP
+
 ## License
 
 ```

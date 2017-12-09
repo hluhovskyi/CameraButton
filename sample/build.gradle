@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    debugImplementation project(":camerabutton")
+    implementation project(":camerabutton")
 
     compile 'io.fotoapparat.fotoapparat:library:1.5.0'
 
