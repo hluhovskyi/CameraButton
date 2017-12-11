@@ -16,23 +16,25 @@
 
 package com.dewarder.camerabutton.util
 
-import android.support.test.espresso.matcher.BoundedMatcher
+import android.support.test.espresso.UiController
+import android.support.test.espresso.ViewAction
+import android.support.test.espresso.matcher.ViewMatchers
 import android.view.View
-
-import com.dewarder.camerabutton.CameraButton
-
-import org.hamcrest.Description
 import org.hamcrest.Matcher
 
-fun state(state: CameraButton.State): Matcher<in View> = StateMatcher(state)
+fun waitFor(millis: Long): ViewAction =
+        WaitingViewAction(millis)
 
-private class StateMatcher(
-        private val state: CameraButton.State
-) : BoundedMatcher<View, CameraButton>(CameraButton::class.java) {
+private class WaitingViewAction(
+        private val millis: Long
+) : ViewAction {
 
-    override fun matchesSafely(item: CameraButton) = item.state == state
+    override fun getDescription() = "Wait for $millis milliseconds.";
 
-    override fun describeTo(description: Description) {
-        description.appendText("with button state: $state")
+    override fun getConstraints(): Matcher<View> = ViewMatchers.isDisplayed()
+
+    override fun perform(uiController: UiController, view: View) {
+        uiController.loopMainThreadForAtLeast(millis)
     }
+
 }

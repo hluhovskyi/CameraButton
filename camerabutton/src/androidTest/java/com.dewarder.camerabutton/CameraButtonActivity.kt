@@ -17,8 +17,9 @@
 package com.dewarder.camerabutton
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Bundle
-import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 
 class CameraButtonActivity : Activity() {
@@ -27,13 +28,13 @@ class CameraButtonActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val container = FrameLayout(this)
-        container.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
-        button = CameraButton(this)
-        button.id = android.R.id.button1
-
-        container.addView(button)
+        val container = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            setBackgroundColor(Color.GRAY)
+            addView(CameraButton(context).apply {
+                button = this
+            })
+        }
         setContentView(container)
     }
 }
