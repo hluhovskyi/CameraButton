@@ -9,7 +9,6 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion sdk_version
         versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -48,3 +47,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
 }
+
+apply from: rootProject.file("gradle/bintray.gradle")
