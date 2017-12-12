@@ -16,7 +16,6 @@
 
 import groovy.json.JsonSlurper
 
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 def parser = new JsonSlurper()
@@ -27,57 +26,22 @@ def rootProperties = parser.parseText(rootProjectInfo.text)
 def properties = parser.parseText(projectInfo.text)
 
 ext {
-    artifactName = properties.name
+    artifactName = properties.name.toLowerCase()
     artifactVersion = properties.version ?: rootProperties.version
-    projectGroup = rootProperties.group
+
+    projectGroup = rootProperties.group.toLowerCase()
+    packageName = "$projectGroup:$artifactName"
     versionDescription = properties.description
     siteUrl = properties.siteUrl ?: rootProperties.siteUrl
-    gitUrl = properties.gitUrl ?: rootProperties.siteUrl
+    gitUrl = properties.gitUrl ?: rootProperties.gitUrl
 
     developerId = properties.developer?.id ?: rootProperties.developer.id
     developerName = properties.developer?.name ?: rootProperties.developer.name
     developerEmail = properties.developer?.email ?: rootProperties.developer.email
 }
 
-version = artifactVersion
-group = projectGroup
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name artifactName
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id developerId
-                        name developerName
-                        email developerEmail
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-
 def bintrayUser = hasProperty('bintrayUser') ? bintrayUser : System.getenv('bintray.user')
 def bintrayKey = hasProperty('bintrayKey') ? bintrayKey : System.getenv('bintray.key')
-
-println("Name of package: $group:$artifactName")
-println(bintrayUser)
-println(bintrayKey)
 
 bintray {
     user = bintrayUser
@@ -85,9 +49,9 @@ bintray {
     configurations = ['archives']
     publish = true
     pkg {
+        name = packageName
         repo = 'maven'
-        name = "$group:$artifactName"
-        userOrg = 'dewarder'
+        userOrg = developerId
         licenses = ['Apache-2.0']
         vcsUrl = gitUrl
         version {
@@ -97,29 +61,4 @@ bintray {
             vcsTag = "v$artifactVersion"
         }
     }
-}
-
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.sourceFiles
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.sourceFiles
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-task classesJar(type: Jar) {
-    from "$buildDir/intermediates/classes/release"
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
 }
