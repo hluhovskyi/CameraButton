@@ -14,8 +14,8 @@
 
     <com.dewarder.camerabutton.CameraButton
         android:id="@+id/camera_button"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="@dimen/cb_layout_width_default"
+        android:layout_height="@dimen/cb_layout_height_default"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"

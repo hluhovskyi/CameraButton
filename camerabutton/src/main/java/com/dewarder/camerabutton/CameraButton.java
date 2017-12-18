@@ -105,14 +105,14 @@ public class CameraButton extends View {
     private State mCurrentState = DEFAULT;
     private float mGradientRotationMultiplier = 1.75f;
     private float mExpandingFactor = 0f;
-    private float mProgressFactor = 0f;
+    float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
     private boolean mInvalidateGradient = true;
 
     //Cancellable
-    private ValueAnimator mExpandAnimator = null;
-    private ValueAnimator mCollapseAnimator = null;
-    private ValueAnimator mProgressAnimator = null;
+    ValueAnimator mExpandAnimator = null;
+    ValueAnimator mCollapseAnimator = null;
+    ValueAnimator mProgressAnimator = null;
     private Runnable mExpandMessage = null;
 
     //Listeners
@@ -337,7 +337,7 @@ public class CameraButton extends View {
         return animator;
     }
 
-    private ValueAnimator createCollapsingAnimator() {
+    ValueAnimator createCollapsingAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(1f, 0f);
         animator.addUpdateListener(animation -> {
             mExpandingFactor = (float) animation.getAnimatedValue();
@@ -368,7 +368,7 @@ public class CameraButton extends View {
         return animator;
     }
 
-    private ValueAnimator createProgressAnimator() {
+    ValueAnimator createProgressAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setInterpolator(Interpolators.getLinearInterpolator());
         animator.addUpdateListener(animation -> {
@@ -397,7 +397,7 @@ public class CameraButton extends View {
      *
      * @param hovered - indicates is user touches view or not
      */
-    private void makePaintColorsHovered(boolean hovered) {
+    void makePaintColorsHovered(boolean hovered) {
         if (hovered) {
             mMainCirclePaint.setColor(mMainCircleColorPressed);
             mStrokePaint.setColor(mStrokeColorPressed);
@@ -463,7 +463,7 @@ public class CameraButton extends View {
      */
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
-                                  mProgressArcColors, null, Shader.TileMode.MIRROR);
+                mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
     /**
@@ -472,7 +472,7 @@ public class CameraButton extends View {
      *
      * @param state - new state of the button
      */
-    private void dispatchStateChange(State state) {
+    void dispatchStateChange(State state) {
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
         }
@@ -700,7 +700,7 @@ public class CameraButton extends View {
             mHoldAllowed = holdAllowed;
         }
 
-        private static Mode fromValue(int value) {
+        static Mode fromValue(int value) {
             switch (value) {
                 case 0:
                     return ALL;

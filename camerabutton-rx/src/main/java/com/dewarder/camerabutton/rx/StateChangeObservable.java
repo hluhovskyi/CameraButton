@@ -47,7 +47,7 @@ final class StateChangeObservable extends Observable<CameraButton.State> {
         private final CameraButton button;
         private final Observer<? super CameraButton.State> observer;
 
-        public Listener(CameraButton button, Observer<? super CameraButton.State> observer) {
+        Listener(CameraButton button, Observer<? super CameraButton.State> observer) {
             this.button = button;
             this.observer = observer;
         }
