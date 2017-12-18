@@ -89,27 +89,38 @@ If you are using Kotlin for development there are also few extension methods:
 
 - `cb_main_circle_radius` or `setMainCircleRadius()`
 
-Default value - `28dp`
+Default value - `28dp`/`@dimen/cb_main_circle_radius_default`
 
 <img width="250" src="/.github/arts/cb_main_circle_radius.png">
 
+
 - `cb_main_circle_color` or `setMainCircleColor()`
 
-Default value - `#ffffff`
+Default value - `#ffffff`/`@color/cb_main_circle_color_default`
 
 <img width="250" src="/.github/arts/cb_main_circle_color.png">
 
+
 - `cb_stroke_width` or `setStrokeWidth()`
 
-Default value - `12dp`
+Default value - `12dp`/`@dimen/cb_stroke_width_default`
 
 <img width="250" src="/.github/arts/cb_stroke_width.png">
 
+
+- `cb_stroke_color` or `setStrokeColor()`
+
+Default value - `#66FFFFFF`/`@color/cb_stroke_color_default`
+
+<img width="250" src="/.github/arts/cb_stroke_color.png">
+
+
 - `cb_main_circle_radius_expanded` or `setMainCircleRadiusExpanded()`
 
-Default value - `24dp`
+Default value - `24dp`/`@dimen/cb_main_circle_radius_expanded_default`
 
 <img width="250" src="/.github/arts/cb_main_circle_radius_expanded.png">
+
 
 - Expanded stroke width can't be set explicitly. It is calculated by following formula:
 
@@ -117,15 +128,17 @@ Default value - `24dp`
 
 <img width="250" src="/.github/arts/cb_stroke_width_expanded.png">
 
+
 - `cb_progress_arc_width` or `setProgressArcWidth()`
 
-Default value - `4dp`
+Default value - `4dp`/`@dimen/cb_progress_arc_width_default`
 
 <img width="250" src="/.github/arts/cb_progress_arc_width.png">
 
+
 - `cb_progress_arc_colors` or `setProgressArcColors()`
 
-Default values - `[#feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5]`
+Default values - `[#feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5]`/`@array/cb_progress_arc_colors_default`
 
 <img width="250" src="/.github/arts/cb_progress_arc_colors.png">
 
