@@ -108,6 +108,8 @@ public class CameraButton extends View {
     float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
     private boolean mInvalidateGradient = true;
+    private boolean mInvalidateConsistency = true;
+    private boolean mCheckConsistency = true;
 
     //Cancellable
     ValueAnimator mExpandAnimator = null;
@@ -202,23 +204,23 @@ public class CameraButton extends View {
 
         mExpandDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_duration,
-                           R.integer.cb_expand_duration_default));
+                        R.styleable.CameraButton_cb_expand_duration,
+                        R.integer.cb_expand_duration_default));
 
         mExpandDelay = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_delay,
-                           R.integer.cb_expand_delay_default));
+                        R.styleable.CameraButton_cb_expand_delay,
+                        R.integer.cb_expand_delay_default));
 
         mCollapseDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_collapse_duration,
-                           R.integer.cb_collapse_duration_default));
+                        R.styleable.CameraButton_cb_collapse_duration,
+                        R.integer.cb_collapse_duration_default));
 
         mHoldDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_hold_duration,
-                           R.integer.cb_hold_duration_default));
+                        R.styleable.CameraButton_cb_hold_duration,
+                        R.integer.cb_hold_duration_default));
 
         mCurrentMode = Mode.fromValue(
                 array.getInteger(
@@ -411,6 +413,12 @@ public class CameraButton extends View {
     protected void onDraw(Canvas canvas) {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
+
+        if (mCheckConsistency && mInvalidateConsistency) {
+            mInvalidateConsistency = false;
+            validateConsistency(width, height);
+        }
+
         int centerX = width / 2;
         int centerY = height / 2;
         int radius = Math.min(centerX, centerY);
@@ -444,6 +452,25 @@ public class CameraButton extends View {
 
         float mainCircleRadius = mMainCircleRadius - (mMainCircleRadius - mMainCircleRadiusExpanded) * mExpandingFactor;
         canvas.drawCircle(centerX, centerY, mainCircleRadius, mMainCirclePaint);
+    }
+
+    private void validateConsistency(int width, int height) {
+        if (mMainCircleRadius > Math.min(width, height)) {
+            throw new ConsistencyValidationException("MainCircleRadius can't be greater than width or height. " +
+                    "MainCircleRadius=" + mMainCircleRadius + "px, width=" + width + "px, height=" + height + "px");
+        }
+        if (mMainCircleRadius + mStrokeWidth > Math.min(width, height)) {
+            throw new ConsistencyValidationException("Sum of MainCircleRadius and StrokeWidth can't be greater than width or height. " +
+                    "MainCircleRadius=" + mMainCircleRadius + "px, StrokeWidth=" + mStrokeWidth + "px, width=" + width + "px, height=" + height + "px");
+        }
+        if (mMainCircleRadiusExpanded > Math.min(width, height)) {
+            throw new ConsistencyValidationException("MainCircleRadiusExpanded can't be greater than width or height. " +
+                    "MainCircleRadiusExpanded=" + mMainCircleRadiusExpanded + "px, width=" + width + "px, height=" + height + "px");
+        }
+        if (mMainCircleRadiusExpanded + mProgressArcWidth > Math.min(width, height)) {
+            throw new ConsistencyValidationException("Sum of MainCircleRadius and ProgressArcWidth can't be greater than width or height. " +
+                    "MainCircleRadius=" + mMainCircleRadius + "px, ProgressArcWidth=" + mProgressArcWidth + "px, width=" + width + "px, height=" + height + "px");
+        }
     }
 
     private void invalidateProgressArcArea(int centerX, int centerY, float strokeRadius, float arcWidth) {
