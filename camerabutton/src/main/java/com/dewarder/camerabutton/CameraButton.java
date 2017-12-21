@@ -103,13 +103,13 @@ public class CameraButton extends View {
     //Logic
     private Mode mCurrentMode;
     private State mCurrentState = DEFAULT;
-    private float mGradientRotationMultiplier = 1.75f;
+    private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
     private float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
     private boolean mInvalidateGradient = true;
     private boolean mInvalidateConsistency = true;
-    private boolean mCheckConsistency = true;
+    private boolean mShouldCheckConsistency = true;
 
     //Cancellable
     ValueAnimator mExpandAnimator = null;
@@ -414,7 +414,7 @@ public class CameraButton extends View {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        if (mCheckConsistency && mInvalidateConsistency) {
+        if (mShouldCheckConsistency && mInvalidateConsistency) {
             mInvalidateConsistency = false;
             validateConsistency(width, height);
         }
@@ -700,6 +700,14 @@ public class CameraButton extends View {
 
     public void setMode(@NonNull Mode mode) {
         mCurrentMode = Constraints.checkNonNull(mode);
+    }
+
+    public boolean shouldCheckConsistency() {
+        return mShouldCheckConsistency;
+    }
+
+    public void setShouldCheckConsistency(boolean checkConsistency) {
+        mShouldCheckConsistency = checkConsistency;
     }
 
     //=================================

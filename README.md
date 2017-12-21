@@ -56,6 +56,8 @@ Please, feel free to open issues you are stuck with. PRs are also welcome :)
   
   ![Check full example](https://github.com/dewarder/CameraButton/tree/master/sample)
   
+  Take into account that you can get `ConsistencyValidationException` in case some part of the button overlaps other one or crosses view's boundaries. If you don't need "pixel-perfect" checks you can disable them by calling `button.shouldCheckConsistency(false)` otherwise you have to set correct sizes.
+  
 ## RxJava and Kotlin
 
 For now only RxJava version 2 is supported. It is implemented according to guidelines of ![JakeWharton/RxBinding](https://github.com/JakeWharton/RxBinding) library.
