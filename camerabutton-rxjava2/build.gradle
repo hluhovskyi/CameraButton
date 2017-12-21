@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply from: 'bintray.gradle'
 
 android {
     compileSdkVersion sdk_version
-
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion sdk_version
@@ -22,14 +21,15 @@ android {
 }
 
 dependencies {
-    api project(":camerabutton-rx")
+    debugApi project(":camerabutton")
+    //releaseApi implementation("com.dewarder:camerabutton:1.0.0")
 
     implementation "com.android.support:appcompat-v7:$support_library_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    api "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    api "io.reactivex.rxjava2:rxandroid:$rxjava_android_version"
 
     testImplementation "junit:junit:$junit_version"
-
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_core_version"
+    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
 }

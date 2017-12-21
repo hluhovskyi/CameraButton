@@ -12,6 +12,15 @@ buildscript {
         rxjava_android_version = '2.0.1'
 
         junit_version = '4.12'
+        robolectric_version = '3.5.1'
+        espresso_core_version = '3.0.1'
+        test_runner_version = '1.0.1'
+    }
+
+    ext {
+        publish_userOrg = 'dewarder'
+        publish_groupId = 'com.dewarder'
+        publish_website = 'https://github.com/dewarder/CameraButton'
     }
 
     repositories {
@@ -24,7 +33,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+        classpath 'com.novoda:bintray-release:0.8.0'
     }
 }
 
