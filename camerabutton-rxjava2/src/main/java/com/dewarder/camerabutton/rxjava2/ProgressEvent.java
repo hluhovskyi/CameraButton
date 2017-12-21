@@ -20,16 +20,18 @@ import android.support.annotation.NonNull;
 
 import com.dewarder.camerabutton.CameraButton;
 
-public final class TapEvent {
+public final class ProgressEvent {
 
     private final CameraButton button;
+    private final float progress;
 
-    private TapEvent(CameraButton button) {
+    private ProgressEvent(CameraButton button, float progress) {
         this.button = button;
+        this.progress = progress;
     }
 
-    public static TapEvent create(@NonNull CameraButton button) {
-        return new TapEvent(button);
+    public static ProgressEvent create(@NonNull CameraButton button, float progress) {
+        return new ProgressEvent(button, progress);
     }
 
     @NonNull
@@ -40,4 +42,9 @@ public final class TapEvent {
     public final CameraButton component1() {
         return view();
     }
+
+    public final float component2() {
+        return progress;
+    }
+
 }

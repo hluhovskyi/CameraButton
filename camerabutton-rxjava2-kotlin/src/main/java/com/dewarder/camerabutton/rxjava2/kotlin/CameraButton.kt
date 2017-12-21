@@ -17,16 +17,20 @@
 package com.dewarder.camerabutton.rxjava2.kotlin
 
 import com.dewarder.camerabutton.CameraButton
-import com.dewarder.camerabutton.rxjava2.HoldEvent
-import com.dewarder.camerabutton.rxjava2.RxCameraButton
-import com.dewarder.camerabutton.rxjava2.TapEvent
+import com.dewarder.camerabutton.rxjava2.*
 import io.reactivex.Observable
 
 fun CameraButton.stateChanges(): Observable<CameraButton.State>
         = RxCameraButton.stateChanges(this)
 
+fun CameraButton.stateChangeEvents(): Observable<StateChangeEvent>
+        = RxCameraButton.stateChangeEvents(this)
+
 fun CameraButton.progress(): Observable<Float>
         = RxCameraButton.progress(this)
+
+fun CameraButton.progressEvents(): Observable<ProgressEvent>
+        = RxCameraButton.progressEvents(this)
 
 fun CameraButton.tapEvents(): Observable<TapEvent>
         = RxCameraButton.tapEvents(this)

@@ -24,4 +24,8 @@ public abstract class HoldEvent {
 
     @NonNull
     public abstract CameraButton view();
+
+    public final CameraButton component1() {
+        return view();
+    }
 }

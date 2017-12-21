@@ -76,7 +76,7 @@ Example of usage:
         .subscribe(event -> takePhoto());
    
    ```
-If you are using Kotlin for development there are also few extension methods:
+All events have `componentN` function so if you are using Kotlin for development there is ability to use destruction declaration and also there are few extension methods:
 
    ```kotlin
    
@@ -84,6 +84,12 @@ If you are using Kotlin for development there are also few extension methods:
         .filter { it == CameraButton.State.START_COLLAPSING }
         .subscribe { hideButtons() }
         
+    button.stateChangeEvents()
+        .filter { (view, state) -> 
+            state == CameraButton.State.PRESSED && view.id = R.id.alert_button
+        }
+        .subscribe { showAlert() }
+      
     button.tapEvents()
         .subscribe { takePhoto() }
    

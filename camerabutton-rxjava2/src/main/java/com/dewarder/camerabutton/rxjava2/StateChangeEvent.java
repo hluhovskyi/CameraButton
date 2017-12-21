@@ -20,16 +20,18 @@ import android.support.annotation.NonNull;
 
 import com.dewarder.camerabutton.CameraButton;
 
-public final class TapEvent {
+public final class StateChangeEvent {
 
     private final CameraButton button;
+    private final CameraButton.State state;
 
-    private TapEvent(CameraButton button) {
+    private StateChangeEvent(CameraButton button, CameraButton.State state) {
         this.button = button;
+        this.state = state;
     }
 
-    public static TapEvent create(@NonNull CameraButton button) {
-        return new TapEvent(button);
+    public static StateChangeEvent create(@NonNull CameraButton button, CameraButton.State state) {
+        return new StateChangeEvent(button, state);
     }
 
     @NonNull
@@ -40,4 +42,9 @@ public final class TapEvent {
     public final CameraButton component1() {
         return view();
     }
+
+    public final CameraButton.State component2() {
+        return state;
+    }
+
 }

@@ -34,9 +34,19 @@ public final class RxCameraButton {
         return new StateChangeObservable(button);
     }
 
+    public static Observable<StateChangeEvent> stateChangeEvents(@NonNull CameraButton button) {
+        Constraints.checkNonNull(button);
+        return new StateChangeEventObservable(button);
+    }
+
     public static Observable<Float> progress(@NonNull CameraButton button) {
         Constraints.checkNonNull(button);
         return new ProgressObservable(button);
+    }
+
+    public static Observable<ProgressEvent> progressEvents(@NonNull CameraButton button) {
+        Constraints.checkNonNull(button);
+        return new ProgressEventObservable(button);
     }
 
     public static Observable<TapEvent> tapEvents(@NonNull CameraButton button) {
