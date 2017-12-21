@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.dewarder.camerabutton.rx.kotlin
+package com.dewarder.camerabutton.rxjava2.kotlin
 
 import com.dewarder.camerabutton.CameraButton
-import com.dewarder.camerabutton.rx.HoldEvent
-import com.dewarder.camerabutton.rx.RxCameraButton
-import com.dewarder.camerabutton.rx.TapEvent
+import com.dewarder.camerabutton.rxjava2.HoldEvent
+import com.dewarder.camerabutton.rxjava2.RxCameraButton
+import com.dewarder.camerabutton.rxjava2.TapEvent
 import io.reactivex.Observable
 
 fun CameraButton.stateChanges(): Observable<CameraButton.State>

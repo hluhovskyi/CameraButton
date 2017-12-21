@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dewarder.camerabutton.rx;
+package com.dewarder.camerabutton.rxjava2;
 
 import android.os.Looper;
 

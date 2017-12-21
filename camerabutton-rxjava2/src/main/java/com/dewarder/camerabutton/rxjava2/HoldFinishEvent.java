@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.dewarder.camerabutton.rx;
+package com.dewarder.camerabutton.rxjava2;
 
 import android.support.annotation.NonNull;
 
 import com.dewarder.camerabutton.CameraButton;
 
-public final class HoldCancelEvent extends HoldEvent {
+public final class HoldFinishEvent extends HoldEvent {
 
     private final CameraButton button;
 
-    private HoldCancelEvent(CameraButton button) {
+    private HoldFinishEvent(CameraButton button) {
         this.button = button;
     }
 
-    public static HoldCancelEvent create(@NonNull CameraButton button) {
-        return new HoldCancelEvent(button);
+    public static HoldFinishEvent create(@NonNull CameraButton button) {
+        return new HoldFinishEvent(button);
     }
 
     @NonNull

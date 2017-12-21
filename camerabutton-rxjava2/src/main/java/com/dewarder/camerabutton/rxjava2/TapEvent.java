@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package com.dewarder.camerabutton.rx;
+package com.dewarder.camerabutton.rxjava2;
 
 import android.support.annotation.NonNull;
 
 import com.dewarder.camerabutton.CameraButton;
 
-public abstract class HoldEvent {
+public final class TapEvent {
+
+    private final CameraButton button;
+
+    private TapEvent(CameraButton button) {
+        this.button = button;
+    }
+
+    public static TapEvent create(@NonNull CameraButton button) {
+        return new TapEvent(button);
+    }
 
     @NonNull
-    public abstract CameraButton view();
+    public CameraButton view() {
+        return button;
+    }
 }
