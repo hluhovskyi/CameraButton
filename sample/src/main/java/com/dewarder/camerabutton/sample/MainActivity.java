@@ -61,14 +61,13 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void makePhoto() {
-        Toast.makeText(this, "Photo has been made!", Toast.LENGTH_SHORT).show();
+    void makePhoto() {
     }
 
-    private void startRecordVideo() {
+    void startRecordVideo() {
     }
 
-    private void finishRecordVideo() {
+    void finishRecordVideo() {
     }
 
     private static void translateToRight(View view, boolean show) {

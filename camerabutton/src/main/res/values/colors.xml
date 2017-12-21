@@ -1,9 +1,9 @@
 <resources>
 
-    <color name="cb_main_circle_color_default">#ffffff</color>
-    <color name="cb_main_circle_color_pressed_default">#dddddd</color>
-    <color name="cb_stroke_color_default">#66FFFFFF</color>
-    <color name="cb_stroke_color_pressed_default">#66FFFFFF</color>
+    <color name="cb_main_circle_color_default">#e6ffffff</color>
+    <color name="cb_main_circle_color_pressed_default">#b3ffffff</color>
+    <color name="cb_stroke_color_default">#66ffffff</color>
+    <color name="cb_stroke_color_pressed_default">#4dffffff</color>
 
     <color name="cb_progress_arc_color_default_1">#feda75</color>
     <color name="cb_progress_arc_color_default_2">#fa7e1e</color>
