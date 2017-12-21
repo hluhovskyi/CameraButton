@@ -2,6 +2,8 @@
 
 Instagram-like button for taking photos or recording videos.
 
+<img src="/.github/preview.gif">
+
 ## Getting started
 
 Add library as dependency to your `build.gradle`.
