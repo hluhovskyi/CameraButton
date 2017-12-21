@@ -86,7 +86,7 @@ All events have `componentN` function so if you are using Kotlin for development
         
     button.stateChangeEvents()
         .filter { (view, state) -> 
-            state == CameraButton.State.PRESSED && view.id = R.id.alert_button
+            view.id == R.id.alert_button && state == CameraButton.State.PRESSED
         }
         .subscribe { showAlert() }
       

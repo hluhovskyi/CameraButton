@@ -22,7 +22,7 @@ android {
 
 dependencies {
     debugApi project(":camerabutton")
-    //releaseApi implementation("com.dewarder:camerabutton:1.0.0")
+    releaseApi implementation("com.dewarder:camerabutton:1.0.0")
 
     implementation "com.android.support:appcompat-v7:$support_library_version"
 
