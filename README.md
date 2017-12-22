@@ -1,5 +1,7 @@
 # CameraButton
 
+[ ![Download](https://api.bintray.com/packages/dewarder/maven/camerabutton/images/download.svg) ](https://bintray.com/dewarder/maven/camerabutton/_latestVersion)
+
 Instagram-like button for taking photos or recording videos.
 
 <img src="/.github/preview.gif">
