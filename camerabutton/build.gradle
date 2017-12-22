@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:appcompat-v7:$support_library_version"
+    api "com.android.support:support-annotations:$support_library_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "junit:junit:$junit_version"

@@ -32,7 +32,8 @@ repositories {
 }
 
 dependencies {
-    implementation project(":camerabutton")
+    debugImplementation project(":camerabutton")
+    releaseImplementation 'com.dewarder:camerabutton-rxjava2:1.0.0'
 
     compile 'io.fotoapparat.fotoapparat:library:1.5.0'
 

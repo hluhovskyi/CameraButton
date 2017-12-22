@@ -24,10 +24,9 @@ android {
 
 dependencies {
     debugApi project(':camerabutton-rxjava2')
-    //releaseApi implementation("com.dewarder:camerabutton-rxjava2:1.0.0")
+    releaseApi("com.dewarder:camerabutton-rxjava2:1.0.0")
 
-    implementation "com.android.support:appcompat-v7:$support_library_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_core_version"

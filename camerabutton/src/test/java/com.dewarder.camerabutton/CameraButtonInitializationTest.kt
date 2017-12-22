@@ -19,7 +19,6 @@ package com.dewarder.camerabutton
 import android.content.Context
 import android.graphics.Color
 import android.support.annotation.*
-import android.support.v4.content.ContextCompat
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -242,7 +241,7 @@ class CameraButtonInitializationTest {
 
     private fun assertDefaultColor(colorProvider: (CameraButton) -> Int, @ColorRes colorRes: Int) {
         val button = CameraButton(context)
-        assertEquals(colorProvider(button), ContextCompat.getColor(context, colorRes))
+        assertEquals(colorProvider(button), context.getColor(colorRes))
     }
 
     private fun assertCustomColor(@ArrayRes attr: Int, colorProvider: (CameraButton) -> Int) {

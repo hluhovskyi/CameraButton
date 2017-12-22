@@ -20,7 +20,7 @@ publish {
     userOrg = publish_userOrg
     groupId = publish_groupId
     artifactId = 'camerabutton'
-    publishVersion = '1.0.0'
+    publishVersion = '1.0.1'
     desc = 'Instagram-like button for taking photos or recording videos'
     website = publish_website
 }

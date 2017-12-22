@@ -18,6 +18,7 @@ package com.dewarder.camerabutton;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.ArrayRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
@@ -25,7 +26,6 @@ import android.support.annotation.DimenRes;
 import android.support.annotation.IntegerRes;
 import android.support.annotation.Px;
 import android.support.annotation.StyleableRes;
-import android.support.v4.content.ContextCompat;
 
 final class TypedArrayHelper {
 
@@ -49,8 +49,11 @@ final class TypedArrayHelper {
                         @StyleableRes int attr,
                         @ColorRes int defaultColorRes) {
 
-        return array.getColor(
-                attr, ContextCompat.getColor(context, defaultColorRes));
+        if (Build.VERSION.SDK_INT >= 23) {
+            return array.getColor(attr, context.getColor(defaultColorRes));
+        } else {
+            return array.getColor(attr, context.getResources().getColor(defaultColorRes));
+        }
     }
 
     @ColorInt
