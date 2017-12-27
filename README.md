@@ -1,6 +1,6 @@
 # CameraButton
 
-[ ![Download](https://api.bintray.com/packages/dewarder/maven/camerabutton/images/download.svg) ](https://bintray.com/dewarder/maven/camerabutton/_latestVersion)
+[![Build Status](https://travis-ci.org/dewarder/CameraButton.svg?branch=master)](https://travis-ci.org/dewarder/CameraButton) [ ![Download](https://api.bintray.com/packages/dewarder/maven/camerabutton/images/download.svg) ](https://bintray.com/dewarder/maven/camerabutton/_latestVersion)
 
 Instagram-like button for taking photos or recording videos.
 
