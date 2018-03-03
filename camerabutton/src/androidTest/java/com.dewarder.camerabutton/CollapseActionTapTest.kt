@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Artem Hluhovskyi
+ * Copyright (C) 2018 Artem Glugovsky
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,57 +17,44 @@
 package com.dewarder.camerabutton
 
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withId
-import com.dewarder.camerabutton.CameraButton.Mode
-import com.dewarder.camerabutton.CameraButton.State
 import com.dewarder.camerabutton.util.pressAndHold
 import com.dewarder.camerabutton.util.release
 import com.dewarder.camerabutton.util.state
 import com.dewarder.camerabutton.util.waitFor
 import org.junit.Test
 
-class ModeHoldStateTest : BaseStateTest() {
+class CollapseActionTapTest : BaseStateTest() {
 
     override fun setUp() {
         super.setUp()
         activityRule.activity.button.apply {
-            mode = Mode.HOLD
+            collapseAction = CameraButton.CollapseAction.TAP
         }
     }
 
     @Test
-    fun testOnPressHasStartExpandingState() {
+    fun testOnReleaseNotCollapsing() {
         onView(withId(buttonId()))
-                .perform(pressAndHold())
-                .check(matches(state(State.START_EXPANDING)))
+            .perform(pressAndHold())
+            .perform(waitFor(expandDuration()))
+            .check(matches(state(CameraButton.State.EXPANDED)))
+            .perform(release())
+            .perform(waitFor(collapseDuration()))
+            .check(matches(state(CameraButton.State.EXPANDED)))
     }
 
     @Test
-    fun testOnHoldAfterDelayHasExpandedState() {
+    fun testOnTapStartCollapsing() {
         onView(withId(buttonId()))
-                .perform(pressAndHold())
-                .perform(waitFor(expandDuration()))
-                .check(matches(state(State.EXPANDED)))
+            .perform(pressAndHold())
+            .perform(waitFor(expandDuration()))
+            .perform(release())
+            .perform(waitFor(collapseDuration()))
+            .check(matches(state(CameraButton.State.EXPANDED)))
+            .perform(click())
+            .check(matches(state(CameraButton.State.START_COLLAPSING)))
     }
-
-    @Test
-    fun testOnReleaseAfterDelayHasStartCollapsingState() {
-        onView(withId(buttonId()))
-                .perform(pressAndHold())
-                .perform(waitFor(expandDuration()))
-                .perform(release())
-                .check(matches(state(State.START_COLLAPSING)))
-    }
-
-    @Test
-    fun testOnReleaseAfterDelayHasDefaultState() {
-        onView(withId(buttonId()))
-                .perform(pressAndHold())
-                .perform(waitFor(expandDuration()))
-                .perform(release())
-                .perform(waitFor(collapseDuration()))
-                .check(matches(state(State.DEFAULT)))
-    }
-
 }

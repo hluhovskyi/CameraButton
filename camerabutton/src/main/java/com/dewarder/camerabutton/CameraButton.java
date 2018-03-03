@@ -313,7 +313,7 @@ public class CameraButton extends View {
                 mExpandAnimator.start();
             };
 
-            //In case when mode doesn't allow hold but not tap - post message immediately
+            //In case when mode doesn't allow hold - post message immediately
             //so button will start expanding right after a tap
             if (mCurrentMode.isTapAllowed()) {
                 postDelayed(mExpandMessage, mExpandDelay);

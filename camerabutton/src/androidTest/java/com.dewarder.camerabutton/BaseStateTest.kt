@@ -47,7 +47,7 @@ abstract class BaseStateTest {
 
 
     companion object {
-        private val BUTTON_ID = android.R.id.button1
+        private const val BUTTON_ID = android.R.id.button1
 
         private const val EXPAND_DELAY = 200L
         private const val EXPAND_DURATION = 400L
@@ -59,6 +59,6 @@ abstract class BaseStateTest {
 
         fun expandDuration() = EXPAND_DURATION
 
-        fun collaspeDuration() = COLLAPSE_DURATION
+        fun collapseDuration() = COLLAPSE_DURATION
     }
 }

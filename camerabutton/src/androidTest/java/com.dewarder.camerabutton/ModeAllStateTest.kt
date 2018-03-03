@@ -75,7 +75,7 @@ class ModeAllStateTest : BaseStateTest() {
                 .perform(pressAndHold())
                 .perform(waitFor(expandDelay() + expandDuration()))
                 .perform(release())
-                .perform(waitFor(collaspeDuration()))
+                .perform(waitFor(collapseDuration()))
                 .check(matches(state(State.DEFAULT)))
     }
 }
