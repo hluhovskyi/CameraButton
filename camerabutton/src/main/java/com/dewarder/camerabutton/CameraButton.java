@@ -35,6 +35,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Px;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -73,6 +74,8 @@ public class CameraButton extends View {
     }
 
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
+
+    private static final String TAG = CameraButton.class.getSimpleName();
 
     private static final int DEFAULT_MODE_INDEX = 0;
     private static final int DEFAULT_COLLAPSE_ACTION_INDEX = 0;
@@ -119,7 +122,7 @@ public class CameraButton extends View {
     ValueAnimator mExpandAnimator = null;
     ValueAnimator mCollapseAnimator = null;
     ValueAnimator mProgressAnimator = null;
-    private Runnable mExpandMessage = null;
+    Runnable mExpandMessage = null;
 
     //Listeners
     private OnStateChangeListener mStateListener;
@@ -329,11 +332,13 @@ public class CameraButton extends View {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
+                Log.v(TAG, "expandingAnimator, onAnimationStart");
                 dispatchStateChange(START_EXPANDING);
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                Log.v(TAG, "expandingAnimator, onAnimationEnd");
                 mProgressAnimator = createProgressAnimator();
                 mProgressAnimator.start();
                 dispatchStateChange(EXPANDED);
@@ -341,6 +346,7 @@ public class CameraButton extends View {
 
             @Override
             public void onAnimationCancel(Animator animation) {
+                Log.v(TAG, "expandingAnimator, onAnimationCancel");
                 animation.removeAllListeners();
             }
         });
@@ -357,6 +363,7 @@ public class CameraButton extends View {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
+                Log.v(TAG, "collapsingAnimator, onAnimationStart");
                 if (mProgressAnimator != null) {
                     mProgressAnimator.cancel();
                 }
@@ -366,12 +373,14 @@ public class CameraButton extends View {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                Log.v(TAG, "collapsingAnimator, onAnimationEnd");
                 mProgressFactor = 0f;
                 dispatchStateChange(DEFAULT);
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
+                Log.v(TAG, "collapsingAnimator, onAnimationCancel");
                 animation.removeAllListeners();
             }
         });
@@ -390,12 +399,14 @@ public class CameraButton extends View {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                Log.v(TAG, "progressAnimator, onAnimationEnd");
                 mCollapseAnimator = createCollapsingAnimator();
                 mCollapseAnimator.start();
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
+                Log.v(TAG, "progressAnimator, onAnimationCancel");
                 animation.removeAllListeners();
             }
         });
@@ -513,6 +524,8 @@ public class CameraButton extends View {
      * @param state - new state of the button
      */
     void dispatchStateChange(State state) {
+        Log.v(TAG, "dispatchStateChange " + mCurrentState + " -> " + state.name());
+
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
         }
