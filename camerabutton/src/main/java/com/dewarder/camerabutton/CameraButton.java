@@ -38,6 +38,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import static com.dewarder.camerabutton.CameraButton.CollapseAction.RELEASE;
 import static com.dewarder.camerabutton.CameraButton.State.DEFAULT;
 import static com.dewarder.camerabutton.CameraButton.State.EXPANDED;
 import static com.dewarder.camerabutton.CameraButton.State.PRESSED;
@@ -74,6 +75,8 @@ public class CameraButton extends View {
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
 
     private static final int DEFAULT_MODE_INDEX = 0;
+    private static final int DEFAULT_COLLAPSE_ACTION_INDEX = 0;
+
     private static final float START_ANGLE = -90f;
     private static final float SWEEP_ANGLE = 360f;
 
@@ -103,6 +106,7 @@ public class CameraButton extends View {
     //Logic
     private Mode mCurrentMode;
     private State mCurrentState = DEFAULT;
+    private CollapseAction mCollapseAction = RELEASE;
     private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
     private float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
@@ -204,28 +208,33 @@ public class CameraButton extends View {
 
         mExpandDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                        R.styleable.CameraButton_cb_expand_duration,
-                        R.integer.cb_expand_duration_default));
+                           R.styleable.CameraButton_cb_expand_duration,
+                           R.integer.cb_expand_duration_default));
 
         mExpandDelay = Constraints.checkDuration(
                 getInteger(context, array,
-                        R.styleable.CameraButton_cb_expand_delay,
-                        R.integer.cb_expand_delay_default));
+                           R.styleable.CameraButton_cb_expand_delay,
+                           R.integer.cb_expand_delay_default));
 
         mCollapseDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                        R.styleable.CameraButton_cb_collapse_duration,
-                        R.integer.cb_collapse_duration_default));
+                           R.styleable.CameraButton_cb_collapse_duration,
+                           R.integer.cb_collapse_duration_default));
 
         mHoldDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                        R.styleable.CameraButton_cb_hold_duration,
-                        R.integer.cb_hold_duration_default));
+                           R.styleable.CameraButton_cb_hold_duration,
+                           R.integer.cb_hold_duration_default));
 
         mCurrentMode = Mode.fromValue(
                 array.getInteger(
                         R.styleable.CameraButton_cb_mode,
                         DEFAULT_MODE_INDEX));
+
+        mCollapseAction = CollapseAction.fromValue(
+                array.getInteger(
+                        R.styleable.CameraButton_cb_collapse_action,
+                        DEFAULT_COLLAPSE_ACTION_INDEX));
 
         array.recycle();
 
@@ -456,20 +465,24 @@ public class CameraButton extends View {
 
     private void validateConsistency(int width, int height) {
         if (mMainCircleRadius > Math.min(width, height)) {
-            throw new ConsistencyValidationException("MainCircleRadius can't be greater than width or height. " +
-                    "MainCircleRadius=" + mMainCircleRadius + "px, width=" + width + "px, height=" + height + "px");
+            throw new ConsistencyValidationException(
+                    "MainCircleRadius can't be greater than width or height. " +
+                            "MainCircleRadius=" + mMainCircleRadius + "px, width=" + width + "px, height=" + height + "px");
         }
         if (mMainCircleRadius + mStrokeWidth > Math.min(width, height)) {
-            throw new ConsistencyValidationException("Sum of MainCircleRadius and StrokeWidth can't be greater than width or height. " +
-                    "MainCircleRadius=" + mMainCircleRadius + "px, StrokeWidth=" + mStrokeWidth + "px, width=" + width + "px, height=" + height + "px");
+            throw new ConsistencyValidationException(
+                    "Sum of MainCircleRadius and StrokeWidth can't be greater than width or height. " +
+                            "MainCircleRadius=" + mMainCircleRadius + "px, StrokeWidth=" + mStrokeWidth + "px, width=" + width + "px, height=" + height + "px");
         }
         if (mMainCircleRadiusExpanded > Math.min(width, height)) {
-            throw new ConsistencyValidationException("MainCircleRadiusExpanded can't be greater than width or height. " +
-                    "MainCircleRadiusExpanded=" + mMainCircleRadiusExpanded + "px, width=" + width + "px, height=" + height + "px");
+            throw new ConsistencyValidationException(
+                    "MainCircleRadiusExpanded can't be greater than width or height. " +
+                            "MainCircleRadiusExpanded=" + mMainCircleRadiusExpanded + "px, width=" + width + "px, height=" + height + "px");
         }
         if (mMainCircleRadiusExpanded + mProgressArcWidth > Math.min(width, height)) {
-            throw new ConsistencyValidationException("Sum of MainCircleRadius and ProgressArcWidth can't be greater than width or height. " +
-                    "MainCircleRadius=" + mMainCircleRadius + "px, ProgressArcWidth=" + mProgressArcWidth + "px, width=" + width + "px, height=" + height + "px");
+            throw new ConsistencyValidationException(
+                    "Sum of MainCircleRadius and ProgressArcWidth can't be greater than width or height. " +
+                            "MainCircleRadius=" + mMainCircleRadius + "px, ProgressArcWidth=" + mProgressArcWidth + "px, width=" + width + "px, height=" + height + "px");
         }
     }
 
@@ -490,7 +503,7 @@ public class CameraButton extends View {
      */
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
-                mProgressArcColors, null, Shader.TileMode.MIRROR);
+                                  mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
     /**
@@ -503,6 +516,7 @@ public class CameraButton extends View {
         if (mStateListener != null) {
             mStateListener.onStateChanged(state);
         }
+
         if (mHoldListener != null && mCurrentMode.isHoldAllowed()) {
             if (state == EXPANDED) {
                 mHoldListener.onStart();
@@ -510,12 +524,14 @@ public class CameraButton extends View {
                 mHoldListener.onFinish();
             }
         }
+
         if (mTapListener != null && mCurrentMode.isTapAllowed()) {
             if (mCurrentState == PRESSED && state == DEFAULT ||
                     mCurrentState == START_EXPANDING && state == START_COLLAPSING) {
                 mTapListener.onTap();
             }
         }
+
         mCurrentState = state;
     }
 
@@ -702,6 +718,15 @@ public class CameraButton extends View {
         mCurrentMode = Constraints.checkNonNull(mode);
     }
 
+    @NonNull
+    public CollapseAction getCollapseAction() {
+        return mCollapseAction;
+    }
+
+    public void setCollapseAction(@NonNull CollapseAction action) {
+        mCollapseAction = Constraints.checkNonNull(action);
+    }
+
     public boolean shouldCheckConsistency() {
         return mShouldCheckConsistency;
     }
@@ -754,6 +779,22 @@ public class CameraButton extends View {
 
         public boolean isHoldAllowed() {
             return mHoldAllowed;
+        }
+    }
+
+    public enum CollapseAction {
+        RELEASE,
+        TAP;
+
+        static CollapseAction fromValue(int value) {
+            switch (value) {
+                case 0:
+                    return RELEASE;
+                case 1:
+                    return TAP;
+                default:
+                    throw new IllegalStateException("No action corresponding to value " + value);
+            }
         }
     }
 }
