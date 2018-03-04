@@ -57,4 +57,27 @@ class CollapseActionTapTest : BaseStateTest() {
             .perform(click())
             .check(matches(state(CameraButton.State.START_COLLAPSING)))
     }
+
+    @Test
+    fun testOnSecondPressNotCollapsing() {
+        onView(withId(buttonId()))
+            .perform(pressAndHold())
+            .perform(waitFor(expandDelay() + expandDuration()))
+            .perform(release())
+            .perform(waitFor(400)) // Wait any period of time
+            .perform(pressAndHold())
+            .check(matches(state(CameraButton.State.EXPANDED)))
+    }
+
+    @Test
+    fun testOnSecondReleaseStartCollapsing() {
+        onView(withId(buttonId()))
+            .perform(pressAndHold())
+            .perform(waitFor(expandDelay() + expandDuration()))
+            .perform(release())
+            .perform(waitFor(400)) // Wait any period of time
+            .perform(pressAndHold())
+            .perform(release())
+            .check(matches(state(CameraButton.State.START_COLLAPSING)))
+    }
 }
