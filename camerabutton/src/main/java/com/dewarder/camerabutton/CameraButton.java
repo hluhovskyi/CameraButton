@@ -40,6 +40,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import static com.dewarder.camerabutton.CameraButton.CollapseAction.RELEASE;
+import static com.dewarder.camerabutton.CameraButton.CollapseAction.TAP;
 import static com.dewarder.camerabutton.CameraButton.State.DEFAULT;
 import static com.dewarder.camerabutton.CameraButton.State.EXPANDED;
 import static com.dewarder.camerabutton.CameraButton.State.PRESSED;
@@ -255,6 +256,18 @@ public class CameraButton extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 if (isEnabled() && isTouched(event)) {
+                    if (mCollapseAction == TAP &&
+                            (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED)) {
+
+                        if (mExpandAnimator != null) {
+                            mExpandAnimator.cancel();
+                        }
+
+                        mCollapseAnimator = createCollapsingAnimator();
+                        mCollapseAnimator.start();
+                        return true;
+                    }
+
                     postExpandingMessageIfNeeded();
                     makePaintColorsHovered(true);
                     invalidate();
@@ -265,9 +278,14 @@ public class CameraButton extends View {
 
             case MotionEvent.ACTION_UP: {
                 if (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED) {
+                    if (mCollapseAction == TAP) {
+                        return true;
+                    }
+
                     if (mExpandAnimator != null) {
                         mExpandAnimator.cancel();
                     }
+
                     mCollapseAnimator = createCollapsingAnimator();
                     mCollapseAnimator.start();
 

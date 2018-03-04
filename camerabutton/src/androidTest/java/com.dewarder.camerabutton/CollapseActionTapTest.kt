@@ -39,7 +39,7 @@ class CollapseActionTapTest : BaseStateTest() {
     fun testOnReleaseNotCollapsing() {
         onView(withId(buttonId()))
             .perform(pressAndHold())
-            .perform(waitFor(expandDuration()))
+            .perform(waitFor(expandDelay() + expandDuration()))
             .check(matches(state(CameraButton.State.EXPANDED)))
             .perform(release())
             .perform(waitFor(collapseDuration()))
