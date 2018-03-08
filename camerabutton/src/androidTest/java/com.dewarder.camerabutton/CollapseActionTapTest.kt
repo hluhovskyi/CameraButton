@@ -17,6 +17,7 @@
 package com.dewarder.camerabutton
 
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withId
@@ -38,46 +39,52 @@ class CollapseActionTapTest : BaseStateTest() {
     @Test
     fun testOnReleaseNotCollapsing() {
         onView(withId(buttonId()))
-            .perform(pressAndHold())
-            .perform(waitFor(expandDelay() + expandDuration()))
-            .check(matches(state(CameraButton.State.EXPANDED)))
-            .perform(release())
-            .perform(waitFor(collapseDuration()))
-            .check(matches(state(CameraButton.State.EXPANDED)))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDelay() + expandDuration()))
+                .check(matches(state(CameraButton.State.EXPANDED)))
+                .perform(release())
+                .perform(waitFor(collapseDuration()))
+                .check(matches(state(CameraButton.State.EXPANDED)))
     }
 
     @Test
     fun testOnTapStartCollapsing() {
+        //Longer collapse duration since click need more time
+        //for performing an action
+        activityRule.activity.button.apply {
+            collapseDuration = 1000
+        }
+
         onView(withId(buttonId()))
-            .perform(pressAndHold())
-            .perform(waitFor(expandDuration()))
-            .perform(release())
-            .perform(waitFor(collapseDuration()))
-            .check(matches(state(CameraButton.State.EXPANDED)))
-            .perform(click())
-            .check(matches(state(CameraButton.State.START_COLLAPSING)))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDuration()))
+                .perform(release())
+                .perform(waitFor(1000))
+                .check(matches(state(CameraButton.State.EXPANDED)))
+                .perform(click())
+                .check(matches(state(CameraButton.State.START_COLLAPSING)))
     }
 
     @Test
     fun testOnSecondPressNotCollapsing() {
         onView(withId(buttonId()))
-            .perform(pressAndHold())
-            .perform(waitFor(expandDelay() + expandDuration()))
-            .perform(release())
-            .perform(waitFor(400)) // Wait any period of time
-            .perform(pressAndHold())
-            .check(matches(state(CameraButton.State.EXPANDED)))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDelay() + expandDuration()))
+                .perform(release())
+                .perform(waitFor(400)) // Wait any period of time
+                .perform(pressAndHold())
+                .check(matches(state(CameraButton.State.EXPANDED)))
     }
 
     @Test
     fun testOnSecondReleaseStartCollapsing() {
         onView(withId(buttonId()))
-            .perform(pressAndHold())
-            .perform(waitFor(expandDelay() + expandDuration()))
-            .perform(release())
-            .perform(waitFor(400)) // Wait any period of time
-            .perform(pressAndHold())
-            .perform(release())
-            .check(matches(state(CameraButton.State.START_COLLAPSING)))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDelay() + expandDuration()))
+                .perform(release())
+                .perform(waitFor(400)) // Wait any period of time
+                .perform(pressAndHold())
+                .perform(release())
+                .check(matches(state(CameraButton.State.START_COLLAPSING)))
     }
 }

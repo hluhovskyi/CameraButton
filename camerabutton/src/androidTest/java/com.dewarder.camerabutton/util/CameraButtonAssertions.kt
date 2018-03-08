@@ -33,6 +33,6 @@ private class StateMatcher(
     override fun matchesSafely(item: CameraButton) = item.state == state
 
     override fun describeTo(description: Description) {
-        description.appendText("with button state: $state")
+        description.appendText("with state: $state")
     }
 }

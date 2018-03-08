@@ -73,5 +73,6 @@ private class ReleaseAction : ViewAction {
 
         val coords = GeneralLocation.CENTER.calculateCoordinates(view)
         MotionEvents.sendUp(uiController, sMotionEventDownHeldView, coords)
+        sMotionEventDownHeldView = null
     }
 }

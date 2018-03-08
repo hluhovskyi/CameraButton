@@ -76,7 +76,7 @@ public class CameraButton extends View {
 
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
 
-    private static final String TAG = CameraButton.class.getSimpleName();
+    static final String TAG = CameraButton.class.getSimpleName();
 
     private static final int DEFAULT_MODE_INDEX = 0;
     private static final int DEFAULT_COLLAPSE_ACTION_INDEX = 0;
@@ -115,8 +115,10 @@ public class CameraButton extends View {
     private float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
+
     private boolean mInvalidateGradient = true;
     private boolean mInvalidateConsistency = true;
+    boolean mShouldCollapseOnNextRelease = false;
     private boolean mShouldCheckConsistency = true;
 
     //Cancellable
@@ -212,23 +214,23 @@ public class CameraButton extends View {
 
         mExpandDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_duration,
-                           R.integer.cb_expand_duration_default));
+                        R.styleable.CameraButton_cb_expand_duration,
+                        R.integer.cb_expand_duration_default));
 
         mExpandDelay = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_delay,
-                           R.integer.cb_expand_delay_default));
+                        R.styleable.CameraButton_cb_expand_delay,
+                        R.integer.cb_expand_delay_default));
 
         mCollapseDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_collapse_duration,
-                           R.integer.cb_collapse_duration_default));
+                        R.styleable.CameraButton_cb_collapse_duration,
+                        R.integer.cb_collapse_duration_default));
 
         mHoldDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_hold_duration,
-                           R.integer.cb_hold_duration_default));
+                        R.styleable.CameraButton_cb_hold_duration,
+                        R.integer.cb_hold_duration_default));
 
         mCurrentMode = Mode.fromValue(
                 array.getInteger(
@@ -251,20 +253,30 @@ public class CameraButton extends View {
     }
 
     @Override
+    public boolean performClick() {
+        boolean result = super.performClick();
+        if (mCollapseAction == TAP &&
+                (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED)) {
+
+            if (mExpandAnimator != null) {
+                mExpandAnimator.cancel();
+            }
+
+            mCollapseAnimator = createCollapsingAnimator();
+            mCollapseAnimator.start();
+        }
+        return result;
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 if (isEnabled() && isTouched(event)) {
-                    if (mCollapseAction == TAP &&
+                    if (mShouldCollapseOnNextRelease &&
                             (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED)) {
 
-                        if (mExpandAnimator != null) {
-                            mExpandAnimator.cancel();
-                        }
-
-                        mCollapseAnimator = createCollapsingAnimator();
-                        mCollapseAnimator.start();
                         return true;
                     }
 
@@ -278,7 +290,9 @@ public class CameraButton extends View {
 
             case MotionEvent.ACTION_UP: {
                 if (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED) {
-                    if (mCollapseAction == TAP) {
+                    if (!mShouldCollapseOnNextRelease && mCollapseAction == TAP) {
+                        mShouldCollapseOnNextRelease = true;
+                        makePaintColorsHovered(false);
                         return true;
                     }
 
@@ -382,9 +396,12 @@ public class CameraButton extends View {
             @Override
             public void onAnimationStart(Animator animation) {
                 Log.v(TAG, "collapsingAnimator, onAnimationStart");
+                mShouldCollapseOnNextRelease = false;
+
                 if (mProgressAnimator != null) {
                     mProgressAnimator.cancel();
                 }
+
                 makePaintColorsHovered(false);
                 dispatchStateChange(START_COLLAPSING);
             }
@@ -532,7 +549,7 @@ public class CameraButton extends View {
      */
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
-                                  mProgressArcColors, null, Shader.TileMode.MIRROR);
+                mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
     /**
