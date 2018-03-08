@@ -230,21 +230,21 @@ class CameraButtonInitializationTest {
     @Test
     fun testCollapseActionDefaultInitializedCorrect() {
         val button = CameraButton(context)
-        assertEquals(button.collapseAction, CameraButton.CollapseAction.RELEASE)
+        assertEquals(button.collapseAction, CameraButton.Action.RELEASE)
     }
 
     @Test
     fun testCollapseActionReleaseCustomInitializedCorrect() {
         val attrs = createAttrs(R.attr.cb_collapse_action, "release")
         val button = CameraButton(context, attrs)
-        assertEquals(button.collapseAction, CameraButton.CollapseAction.RELEASE)
+        assertEquals(button.collapseAction, CameraButton.Action.RELEASE)
     }
 
     @Test
     fun testCollapseActionTapCustomInitializedCorrect() {
         val attrs = createAttrs(R.attr.cb_collapse_action, "tap")
         val button = CameraButton(context, attrs)
-        assertEquals(button.collapseAction, CameraButton.CollapseAction.TAP)
+        assertEquals(button.collapseAction, CameraButton.Action.CLICK)
     }
 
     private fun assertDefaultDimen(dimenProvider: (CameraButton) -> Int, @DimenRes dimenRes: Int) {

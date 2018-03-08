@@ -17,7 +17,6 @@
 package com.dewarder.camerabutton
 
 import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withId
@@ -27,12 +26,12 @@ import com.dewarder.camerabutton.util.state
 import com.dewarder.camerabutton.util.waitFor
 import org.junit.Test
 
-class CollapseActionTapTest : BaseStateTest() {
+class CollapseActionClickTest : BaseStateTest() {
 
     override fun setUp() {
         super.setUp()
         activityRule.activity.button.apply {
-            collapseAction = CameraButton.CollapseAction.TAP
+            collapseAction = CameraButton.Action.CLICK
         }
     }
 

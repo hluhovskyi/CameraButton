@@ -22,7 +22,7 @@
         </attr>
         <attr name="cb_collapse_action" format="enum">
             <enum name="release" value="0"/>
-            <enum name="tap" value="1"/>
+            <enum name="click" value="1"/>
         </attr>
     </declare-styleable>
 
