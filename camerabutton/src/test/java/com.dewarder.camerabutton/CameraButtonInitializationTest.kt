@@ -241,8 +241,8 @@ class CameraButtonInitializationTest {
     }
 
     @Test
-    fun testCollapseActionTapCustomInitializedCorrect() {
-        val attrs = createAttrs(R.attr.cb_collapse_action, "tap")
+    fun testCollapseActionClickCustomInitializedCorrect() {
+        val attrs = createAttrs(R.attr.cb_collapse_action, "click")
         val button = CameraButton(context, attrs)
         assertEquals(button.collapseAction, CameraButton.Action.CLICK)
     }
