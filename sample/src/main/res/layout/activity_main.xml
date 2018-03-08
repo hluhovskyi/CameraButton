@@ -18,6 +18,8 @@
         android:layout_height="@dimen/cb_layout_height_default"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="24dp"
+        app:cb_collapse_action="click"
+        app:cb_mode="hold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/camera_switch"
         app:layout_constraintStart_toEndOf="@+id/flash_switch"/>

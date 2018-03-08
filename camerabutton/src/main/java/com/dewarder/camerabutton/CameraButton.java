@@ -20,14 +20,23 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -106,6 +115,13 @@ public class CameraButton extends View {
     private long mCollapseDuration;
     private long mExpandDelay;
     private long mHoldDuration;
+
+    //Icons
+    private Shader[] mIconShaders;
+    private Matrix[] mIconMatrices;
+    private Paint[] mIconPaints;
+    private int mIconSize = 56;
+    private float mIconPosition;
 
     //Logic
     private Mode mCurrentMode;
@@ -543,6 +559,42 @@ public class CameraButton extends View {
 
         float mainCircleRadius = mMainCircleRadius - (mMainCircleRadius - mMainCircleRadiusExpanded) * mExpandingFactor;
         canvas.drawCircle(centerX, centerY, mainCircleRadius, mMainCirclePaint);
+
+
+        int leftIndex = (int) mIconPosition;
+        float left = mIconPosition - (int) mIconPosition;
+        float right = 1 - left;
+
+        //Icons sections
+        int iconCenter = mIconSize / 2;
+
+        float leftTranslation = mIconSize * left + (mMainCircleRadius - mIconSize) / 2f;
+        invalidateMatrix(mIconMatrices[leftIndex], centerX, centerY, left, leftTranslation);
+        mIconShaders[leftIndex].setLocalMatrix(mIconMatrices[leftIndex]);
+        canvas.drawRect(centerX - iconCenter - leftTranslation,
+                        centerY - iconCenter,
+                        centerX + iconCenter - leftTranslation,
+                        centerY + iconCenter,
+                        mIconPaints[leftIndex]);
+
+        if (leftIndex <= mIconSize - 1) {
+            int rightIndex = leftIndex + 1;
+            float rightTranslation = mIconSize * right + (mMainCircleRadius - mIconSize) / 2f;
+            invalidateMatrix(mIconMatrices[rightIndex], centerX, centerY, right, -rightTranslation);
+            mIconShaders[rightIndex].setLocalMatrix(mIconMatrices[rightIndex]);
+            canvas.drawRect(centerX - iconCenter + rightTranslation,
+                            centerY - iconCenter,
+                            centerX + iconCenter + rightTranslation,
+                            centerY + iconCenter,
+                            mIconPaints[rightIndex]);
+        }
+    }
+
+    private void invalidateMatrix(Matrix matrix, float centerX, float centerY, float scaleX, float translation) {
+        matrix.reset();
+        matrix.setScale(scaleX, 1);
+        matrix.postTranslate(centerX - mIconSize / 2f + mIconSize / 2f * (1 - scaleX) - translation,
+                             centerY - mIconSize / 2f);
     }
 
     private void validateConsistency(int width, int height) {
@@ -586,6 +638,29 @@ public class CameraButton extends View {
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
                                   mProgressArcColors, null, Shader.TileMode.MIRROR);
+    }
+
+    private void invalidateIcons() {
+        if (mIconShaders == null) {
+            return;
+        }
+
+        mIconMatrices = new Matrix[mIconShaders.length];
+        mIconPaints = new Paint[mIconShaders.length];
+
+        for (int i = 0; i < mIconShaders.length; i++) {
+            Shader shader = mIconShaders[i];
+
+            Matrix matrix = new Matrix();
+            shader.setLocalMatrix(matrix);
+            mIconMatrices[i] = matrix;
+
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setShader(shader);
+            paint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_IN));
+
+            mIconPaints[i] = paint;
+        }
     }
 
     /**
@@ -817,6 +892,38 @@ public class CameraButton extends View {
 
     public void setShouldCheckConsistency(boolean checkConsistency) {
         mShouldCheckConsistency = checkConsistency;
+    }
+
+    public void setIcons(@DrawableRes int[] icons) {
+        Resources resources = getResources();
+        BitmapShader[] shaders = new BitmapShader[icons.length];
+        for (int i = 0; i < icons.length; i++) {
+            shaders[i] = new BitmapShader(
+                    BitmapFactory.decodeResource(resources, icons[i]),
+                    Shader.TileMode.CLAMP,
+                    Shader.TileMode.CLAMP);
+        }
+        mIconShaders = shaders;
+        invalidateIcons();
+    }
+
+    public void setIcons(Bitmap[] icons) {
+        BitmapShader[] shaders = new BitmapShader[icons.length];
+        for (int i = 0; i < icons.length; i++) {
+            Bitmap bitmap = Bitmap.createScaledBitmap(icons[i], mIconSize, mIconSize, false);
+            shaders[i] = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        }
+        mIconShaders = shaders;
+        invalidateIcons();
+    }
+
+    public void scrollToPosition(float position) {
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        animator.addUpdateListener(animation -> {
+            mIconPosition = (float) animation.getAnimatedValue();
+            invalidate();
+        });
+        animator.start();
     }
 
     //=================================

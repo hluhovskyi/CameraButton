@@ -16,6 +16,7 @@
 
 package com.dewarder.camerabutton.sample;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -29,6 +30,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getCameraButton().setIcons(new Bitmap[]{
+                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
+        });
+        getCameraButton().postDelayed(() -> {
+            getCameraButton().scrollToPosition(0f);
+        }, 1000);
 
         getCameraButton().setOnTapEventListener(this::makePhoto);
         getCameraButton().setOnHoldEventListener(new CameraButton.OnHoldEventListener() {
