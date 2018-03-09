@@ -44,9 +44,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import static com.dewarder.camerabutton.CameraButton.Action.CLICK;
@@ -121,7 +118,7 @@ public class CameraButton extends View {
     private Shader[] mIconShaders;
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
-    private int mIconSize = 48;
+    private int mIconSize = 56;
     private float mIconPosition;
 
     //Logic
@@ -561,67 +558,78 @@ public class CameraButton extends View {
         float mainCircleRadius = mMainCircleRadius - (mMainCircleRadius - mMainCircleRadiusExpanded) * mExpandingFactor;
         canvas.drawCircle(centerX, centerY, mainCircleRadius, mMainCirclePaint);
 
+        drawIconsIfNeeded(canvas);
+    }
+
+    private void drawIconsIfNeeded(Canvas canvas) {
+        //Check only shaders cause all other needed things are verified above
+        if (mIconShaders == null) {
+            return;
+        }
 
         int leftIndex = (int) mIconPosition;
-        float left = mIconPosition - (int) mIconPosition;
-        float right = 1 - left;
+        float leftProgress = mIconPosition - (int) mIconPosition;
+        float rightProgress = 1 - leftProgress;
 
-        //Icons sections
-        int iconCenter = mIconSize / 2;
-
-        float leftIconSize = mIconSize - mIconSize * interpolateScaleX(left);
-        float leftTranslation = calculateTranslation(left);
-        float leftScaleX = leftIconSize / mIconSize;
-
-        mIconMatrices[leftIndex].reset();
-        mIconMatrices[leftIndex].setScale(leftScaleX, 1);
-        //Log.v(TAG, "cx = " + centerX + ", iconSize = " + iconSize + ", scaleX = " + scaleX + ", translation = " + translation);
-        mIconMatrices[leftIndex].postTranslate(centerX - leftIconSize / 2f - (mIconSize - leftIconSize) / 2f - leftTranslation,
-                centerY - mIconSize / 2f);
-        mIconShaders[leftIndex].setLocalMatrix(mIconMatrices[leftIndex]);
-
-        canvas.drawRect(centerX - iconCenter - leftTranslation,
-                centerY - iconCenter,
-                centerX + leftIconSize / 2f - (mIconSize - leftIconSize) / 2f - leftTranslation,
-                centerY + iconCenter,
-                mIconPaints[leftIndex]);
+        drawIcon(canvas, leftIndex, leftProgress, true);
 
         if (leftIndex < mIconShaders.length - 1) {
-            int rightIndex = leftIndex + 1;
-            float rightIconSize = mIconSize - mIconSize * interpolateScaleX(right);
-            float rightTranslation = calculateTranslation(right);
-            float rightScaleX = rightIconSize / mIconSize;
-
-            mIconMatrices[rightIndex].reset();
-            mIconMatrices[rightIndex].setScale(rightScaleX, 1);
-            //Log.v(TAG, "cx = " + centerX + ", iconSize = " + iconSize + ", scaleX = " + scaleX + ", translation = " + translation);
-
-            mIconMatrices[rightIndex].postTranslate(centerX - rightIconSize / 2f + (mIconSize - rightIconSize) / 2f + rightTranslation,
-                    centerY - mIconSize / 2f);
-
-            mIconShaders[rightIndex].setLocalMatrix(mIconMatrices[rightIndex]);
-
-            Log.v(TAG, "right = " + right + " rightIconSize = " + rightIconSize);
-            canvas.drawRect(
-                    centerX - rightIconSize / 2f + (mIconSize - rightIconSize) / 2f + rightTranslation,
-                    centerY - iconCenter,
-                    centerX + iconCenter + rightTranslation,
-                    centerY + iconCenter,
-                    mIconPaints[rightIndex]);
+            drawIcon(canvas, leftIndex + 1, rightProgress, false);
         }
     }
 
-    float calculateTranslation(float progress) {
+    /**
+     * Since algorithm has differences between values calculation of right/left icons
+     * we have to pass some flag for identify icon side.
+     */
+    private void drawIcon(Canvas canvas, int index, float progress, boolean isLeftIcon) {
+        float centerX = canvas.getWidth() / 2f;
+        float centerY = canvas.getHeight() / 2f;
+
+        float iconWidth = calculateIconWidth(progress);
+        float translation = calculateTranslation(progress);
+        float scaleX = iconWidth / mIconSize;
+
+        float matrixDx = isLeftIcon
+                ? centerX - mIconSize / 2f - translation
+                : centerX + mIconSize / 2f + translation - iconWidth;
+
+        Matrix matrix = mIconMatrices[index];
+        matrix.reset();
+        matrix.setScale(scaleX, 1);
+        matrix.postTranslate(matrixDx, centerY - mIconSize / 2f);
+
+        mIconShaders[index].setLocalMatrix(matrix);
+
+        Paint paint = mIconPaints[index];
+        paint.setAlpha((int) (255 * (1 - progress)));
+
+        float rectLeft = isLeftIcon
+                ? centerX - mIconSize / 2f - translation
+                : centerX + mIconSize / 2f + translation - iconWidth;
+
+        float rectRight = isLeftIcon
+                ? centerX - mIconSize / 2f - translation + iconWidth
+                : centerX + mIconSize / 2f + translation;
+
+        canvas.drawRect(
+                rectLeft,
+                centerY - mIconSize / 2f,
+                rectRight,
+                centerY + mIconSize / 2f,
+                paint
+        );
+    }
+
+    //TODO: Extract magic numbers to constants
+    private float calculateTranslation(float progress) {
         float interpolated = progress <= 0.4f ? progress / 0.4f : 1f;
         return (mMainCircleRadius - mIconSize / 2f) * interpolated;
     }
 
-    float interpolateScaleX(float progress) {
-        return progress < 0.4f ? 0 : (progress - 0.4f) / 0.6f;
-    }
-
-    private void invalidateMatrix(Matrix matrix, float centerX, float centerY, float iconSize, float translation) {
-
+    private float calculateIconWidth(float progress) {
+        float interpolated = progress < 0.4f ? 0 : (progress - 0.4f) / 0.6f;
+        return mIconSize - mIconSize * interpolated;
     }
 
     private void validateConsistency(int width, int height) {
@@ -684,9 +692,6 @@ public class CameraButton extends View {
 
             Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
             paint.setShader(shader);
-            //if (i == 0) paint.setColor(Color.RED);
-            //if (i == 1) paint.setColor(Color.BLUE);
-            //paint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_IN));
 
             mIconPaints[i] = paint;
         }
@@ -947,13 +952,13 @@ public class CameraButton extends View {
     }
 
     public void scrollToPosition(float position) {
-        ValueAnimator animator = ValueAnimator.ofFloat(0f, 2f);
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 20f);
         animator.addUpdateListener(animation -> {
             mIconPosition = (float) animation.getAnimatedValue();
             invalidate();
         });
         animator.setInterpolator(new DecelerateInterpolator());
-        animator.setDuration(400);
+        animator.setDuration(800);
         animator.start();
     }
 
