@@ -951,7 +951,7 @@ public class CameraButton extends View {
         invalidateIcons();
     }
 
-    public void scrollToPosition(float position) {
+    public void scrollIconsToPosition(float position) {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 20f);
         animator.addUpdateListener(animation -> {
             mIconPosition = (float) animation.getAnimatedValue();
@@ -960,6 +960,11 @@ public class CameraButton extends View {
         animator.setInterpolator(new DecelerateInterpolator());
         animator.setDuration(800);
         animator.start();
+    }
+
+    public void setIconsPosition(float position) {
+        mIconPosition = position;
+        invalidate();
     }
 
     //=================================

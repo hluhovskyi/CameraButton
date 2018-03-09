@@ -18,8 +18,13 @@ package com.dewarder.camerabutton.sample;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.dewarder.camerabutton.CameraButton;
 
@@ -74,7 +79,7 @@ public class MainActivity extends BaseActivity {
         });
 
         getCameraButton().setOnTapEventListener(() -> {
-            getCameraButton().scrollToPosition(0f);
+            getCameraButton().setIconsPosition(1.5f);
         });
         getCameraButton().setOnHoldEventListener(new CameraButton.OnHoldEventListener() {
             @Override
@@ -93,6 +98,36 @@ public class MainActivity extends BaseActivity {
         });
 
         getCameraButton().setOnStateChangeListener(this::onStateChanged);
+
+        RecyclerView recycler = findViewById(R.id.recycler);
+        recycler.setAdapter(new RecyclerView.Adapter() {
+            @NonNull
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                TextView tv = new TextView(parent.getContext());
+                tv.setText("Item");
+                return new RecyclerView.ViewHolder(tv) {
+                };
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            }
+
+            @Override
+            public int getItemCount() {
+                return 20;
+            }
+        });
+        recycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                float range = recyclerView.computeHorizontalScrollRange();
+                float offset = recyclerView.computeHorizontalScrollOffset();
+                getCameraButton().setIconsPosition(20 * offset / range);
+            }
+        });
     }
 
     private void onStateChanged(CameraButton.State state) {

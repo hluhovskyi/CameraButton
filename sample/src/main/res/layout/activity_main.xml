@@ -49,4 +49,12 @@
         app:layout_constraintTop_toTopOf="@+id/camera_button"
         app:srcCompat="@drawable/ic_sync_white_36dp"/>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
 </android.support.constraint.ConstraintLayout>
