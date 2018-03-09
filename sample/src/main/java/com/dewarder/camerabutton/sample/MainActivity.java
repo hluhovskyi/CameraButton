@@ -33,12 +33,12 @@ public class MainActivity extends BaseActivity {
         getCameraButton().setIcons(new Bitmap[]{
                 BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
         });
-        getCameraButton().postDelayed(() -> {
-            getCameraButton().scrollToPosition(0f);
-        }, 1000);
 
-        getCameraButton().setOnTapEventListener(this::makePhoto);
+        getCameraButton().setOnTapEventListener(() -> {
+            getCameraButton().scrollToPosition(0f);
+        });
         getCameraButton().setOnHoldEventListener(new CameraButton.OnHoldEventListener() {
             @Override
             public void onStart() {

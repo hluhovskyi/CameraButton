@@ -26,12 +26,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
@@ -47,6 +44,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import static com.dewarder.camerabutton.CameraButton.Action.CLICK;
 import static com.dewarder.camerabutton.CameraButton.Action.RELEASE;
@@ -120,7 +121,7 @@ public class CameraButton extends View {
     private Shader[] mIconShaders;
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
-    private int mIconSize = 56;
+    private int mIconSize = 48;
     private float mIconPosition;
 
     //Logic
@@ -230,23 +231,23 @@ public class CameraButton extends View {
 
         mExpandDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_duration,
-                           R.integer.cb_expand_duration_default));
+                        R.styleable.CameraButton_cb_expand_duration,
+                        R.integer.cb_expand_duration_default));
 
         mExpandDelay = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_expand_delay,
-                           R.integer.cb_expand_delay_default));
+                        R.styleable.CameraButton_cb_expand_delay,
+                        R.integer.cb_expand_delay_default));
 
         mCollapseDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_collapse_duration,
-                           R.integer.cb_collapse_duration_default));
+                        R.styleable.CameraButton_cb_collapse_duration,
+                        R.integer.cb_collapse_duration_default));
 
         mHoldDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                           R.styleable.CameraButton_cb_hold_duration,
-                           R.integer.cb_hold_duration_default));
+                        R.styleable.CameraButton_cb_hold_duration,
+                        R.integer.cb_hold_duration_default));
 
         mCurrentMode = Mode.fromValue(
                 array.getInteger(
@@ -568,33 +569,59 @@ public class CameraButton extends View {
         //Icons sections
         int iconCenter = mIconSize / 2;
 
-        float leftTranslation = mIconSize * left + (mMainCircleRadius - mIconSize) / 2f;
-        invalidateMatrix(mIconMatrices[leftIndex], centerX, centerY, left, leftTranslation);
-        mIconShaders[leftIndex].setLocalMatrix(mIconMatrices[leftIndex]);
-        canvas.drawRect(centerX - iconCenter - leftTranslation,
-                        centerY - iconCenter,
-                        centerX + iconCenter - leftTranslation,
-                        centerY + iconCenter,
-                        mIconPaints[leftIndex]);
+        float leftIconSize = mIconSize - mIconSize * interpolateScaleX(left);
+        float leftTranslation = calculateTranslation(left);
+        float leftScaleX = leftIconSize / mIconSize;
 
-        if (leftIndex <= mIconSize - 1) {
+        mIconMatrices[leftIndex].reset();
+        mIconMatrices[leftIndex].setScale(leftScaleX, 1);
+        //Log.v(TAG, "cx = " + centerX + ", iconSize = " + iconSize + ", scaleX = " + scaleX + ", translation = " + translation);
+        mIconMatrices[leftIndex].postTranslate(centerX - leftIconSize / 2f - (mIconSize - leftIconSize) / 2f - leftTranslation,
+                centerY - mIconSize / 2f);
+        mIconShaders[leftIndex].setLocalMatrix(mIconMatrices[leftIndex]);
+
+        canvas.drawRect(centerX - iconCenter - leftTranslation,
+                centerY - iconCenter,
+                centerX + leftIconSize / 2f - (mIconSize - leftIconSize) / 2f - leftTranslation,
+                centerY + iconCenter,
+                mIconPaints[leftIndex]);
+
+        if (leftIndex < mIconShaders.length - 1) {
             int rightIndex = leftIndex + 1;
-            float rightTranslation = mIconSize * right + (mMainCircleRadius - mIconSize) / 2f;
-            invalidateMatrix(mIconMatrices[rightIndex], centerX, centerY, right, -rightTranslation);
+            float rightIconSize = mIconSize - mIconSize * interpolateScaleX(right);
+            float rightTranslation = calculateTranslation(right);
+            float rightScaleX = rightIconSize / mIconSize;
+
+            mIconMatrices[rightIndex].reset();
+            mIconMatrices[rightIndex].setScale(rightScaleX, 1);
+            //Log.v(TAG, "cx = " + centerX + ", iconSize = " + iconSize + ", scaleX = " + scaleX + ", translation = " + translation);
+
+            mIconMatrices[rightIndex].postTranslate(centerX - rightIconSize / 2f + (mIconSize - rightIconSize) / 2f + rightTranslation,
+                    centerY - mIconSize / 2f);
+
             mIconShaders[rightIndex].setLocalMatrix(mIconMatrices[rightIndex]);
-            canvas.drawRect(centerX - iconCenter + rightTranslation,
-                            centerY - iconCenter,
-                            centerX + iconCenter + rightTranslation,
-                            centerY + iconCenter,
-                            mIconPaints[rightIndex]);
+
+            Log.v(TAG, "right = " + right + " rightIconSize = " + rightIconSize);
+            canvas.drawRect(
+                    centerX - rightIconSize / 2f + (mIconSize - rightIconSize) / 2f + rightTranslation,
+                    centerY - iconCenter,
+                    centerX + iconCenter + rightTranslation,
+                    centerY + iconCenter,
+                    mIconPaints[rightIndex]);
         }
     }
 
-    private void invalidateMatrix(Matrix matrix, float centerX, float centerY, float scaleX, float translation) {
-        matrix.reset();
-        matrix.setScale(scaleX, 1);
-        matrix.postTranslate(centerX - mIconSize / 2f + mIconSize / 2f * (1 - scaleX) - translation,
-                             centerY - mIconSize / 2f);
+    float calculateTranslation(float progress) {
+        float interpolated = progress <= 0.4f ? progress / 0.4f : 1f;
+        return (mMainCircleRadius - mIconSize / 2f) * interpolated;
+    }
+
+    float interpolateScaleX(float progress) {
+        return progress < 0.4f ? 0 : (progress - 0.4f) / 0.6f;
+    }
+
+    private void invalidateMatrix(Matrix matrix, float centerX, float centerY, float iconSize, float translation) {
+
     }
 
     private void validateConsistency(int width, int height) {
@@ -637,7 +664,7 @@ public class CameraButton extends View {
      */
     private Shader createGradient(int width, int height) {
         return new LinearGradient(0, 0, width, height,
-                                  mProgressArcColors, null, Shader.TileMode.MIRROR);
+                mProgressArcColors, null, Shader.TileMode.MIRROR);
     }
 
     private void invalidateIcons() {
@@ -657,7 +684,9 @@ public class CameraButton extends View {
 
             Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
             paint.setShader(shader);
-            paint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_IN));
+            //if (i == 0) paint.setColor(Color.RED);
+            //if (i == 1) paint.setColor(Color.BLUE);
+            //paint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_IN));
 
             mIconPaints[i] = paint;
         }
@@ -918,11 +947,13 @@ public class CameraButton extends View {
     }
 
     public void scrollToPosition(float position) {
-        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 2f);
         animator.addUpdateListener(animation -> {
             mIconPosition = (float) animation.getAnimatedValue();
             invalidate();
         });
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.setDuration(400);
         animator.start();
     }
 
