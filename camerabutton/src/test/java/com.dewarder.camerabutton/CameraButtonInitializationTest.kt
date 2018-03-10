@@ -201,6 +201,20 @@ class CameraButtonInitializationTest {
     }
 
     @Test
+    fun testIconSizeDefaultInitializedCorrect() {
+        assertDefaultDimen(
+                dimenProvider = CameraButton::getIconSize,
+                dimenRes = R.dimen.cb_icon_size_default)
+    }
+
+    @Test
+    fun testIconSizeCustomInitializedCorrect() {
+        assertCustomDimen(
+                attr = R.attr.cb_icon_size,
+                dimenProvider = CameraButton::getIconSize)
+    }
+
+    @Test
     fun testModeDefaultInitializedCorrect() {
         val button = CameraButton(context)
         assertEquals(button.mode, CameraButton.Mode.ALL)

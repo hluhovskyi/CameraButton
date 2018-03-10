@@ -82,6 +82,7 @@ public class CameraButton extends View {
     }
 
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
+    public static final float NO_ICON = -1;
 
     static final String TAG = CameraButton.class.getSimpleName();
 
@@ -118,8 +119,8 @@ public class CameraButton extends View {
     private Shader[] mIconShaders;
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
-    private int mIconSize = 56;
-    private float mIconPosition;
+    private int mIconSize;
+    private float mIconPosition = NO_ICON;
 
     //Logic
     private Mode mCurrentMode;
@@ -132,7 +133,7 @@ public class CameraButton extends View {
 
     private boolean mInvalidateGradient = true;
     private boolean mInvalidateConsistency = true;
-    boolean mShouldCollapseOnNextRelease = false;
+    boolean mShouldCollapseOnNextClick = false;
     private boolean mShouldCheckConsistency = true;
 
     //Cancellable
@@ -246,6 +247,11 @@ public class CameraButton extends View {
                         R.styleable.CameraButton_cb_hold_duration,
                         R.integer.cb_hold_duration_default));
 
+        mIconSize = Constraints.checkDimension(
+                getDimension(context, array,
+                        R.styleable.CameraButton_cb_icon_size,
+                        R.dimen.cb_icon_size_default));
+
         mCurrentMode = Mode.fromValue(
                 array.getInteger(
                         R.styleable.CameraButton_cb_mode,
@@ -286,7 +292,7 @@ public class CameraButton extends View {
                 if (isEnabled() && isTouched(event)) {
                     makePaintColorsHovered(true);
 
-                    if (mShouldCollapseOnNextRelease &&
+                    if (mShouldCollapseOnNextClick &&
                             (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED)) {
 
                         return true;
@@ -300,7 +306,7 @@ public class CameraButton extends View {
             }
 
             case MotionEvent.ACTION_MOVE: {
-                if (mShouldCollapseOnNextRelease) {
+                if (mShouldCollapseOnNextClick) {
                     makePaintColorsHovered(isTouchedExpanded(event));
                 }
                 return true;
@@ -309,8 +315,8 @@ public class CameraButton extends View {
             case MotionEvent.ACTION_UP: {
                 if (mCurrentState == START_EXPANDING || mCurrentState == EXPANDED) {
                     //Handling first release from button
-                    if (mCollapseAction == CLICK && !mShouldCollapseOnNextRelease) {
-                        mShouldCollapseOnNextRelease = true;
+                    if (mCollapseAction == CLICK && !mShouldCollapseOnNextClick) {
+                        mShouldCollapseOnNextClick = true;
                         makePaintColorsHovered(false);
                         return true;
                     }
@@ -366,10 +372,13 @@ public class CameraButton extends View {
      */
     private void postExpandingMessageIfNeeded() {
         if (mCurrentMode.isHoldAllowed()) {
-            mExpandMessage = () -> {
-                mProgressFactor = 0f;
-                mExpandAnimator = createExpandingAnimator();
-                mExpandAnimator.start();
+            mExpandMessage = new Runnable() {
+                @Override
+                public void run() {
+                    mProgressFactor = 0f;
+                    mExpandAnimator = createExpandingAnimator();
+                    mExpandAnimator.start();
+                }
             };
 
             //In case when mode doesn't allow hold - post message immediately
@@ -384,9 +393,12 @@ public class CameraButton extends View {
 
     ValueAnimator createExpandingAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.addUpdateListener(animation -> {
-            mExpandingFactor = (float) animation.getAnimatedValue();
-            invalidate();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mExpandingFactor = (float) animation.getAnimatedValue();
+                invalidate();
+            }
         });
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -425,15 +437,18 @@ public class CameraButton extends View {
 
     ValueAnimator createCollapsingAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(1f, 0f);
-        animator.addUpdateListener(animation -> {
-            mExpandingFactor = (float) animation.getAnimatedValue();
-            invalidate();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mExpandingFactor = (float) animation.getAnimatedValue();
+                invalidate();
+            }
         });
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 Log.v(TAG, "collapsingAnimator, onAnimationStart");
-                mShouldCollapseOnNextRelease = false;
+                mShouldCollapseOnNextClick = false;
 
                 cancelExpandingAnimatorIfNeeded();
                 cancelProgressAnimatorIfNeeded();
@@ -469,10 +484,13 @@ public class CameraButton extends View {
     ValueAnimator createProgressAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setInterpolator(Interpolators.getLinearInterpolator());
-        animator.addUpdateListener(animation -> {
-            mProgressFactor = (float) animation.getAnimatedValue();
-            dispatchProgressChange(mProgressFactor);
-            invalidate();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mProgressFactor = (float) animation.getAnimatedValue();
+                dispatchProgressChange(mProgressFactor);
+                invalidate();
+            }
         });
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -562,8 +580,7 @@ public class CameraButton extends View {
     }
 
     private void drawIconsIfNeeded(Canvas canvas) {
-        //Check only shaders cause all other needed things are verified above
-        if (mIconShaders == null) {
+        if (mIconPosition == NO_ICON) {
             return;
         }
 
@@ -695,6 +712,13 @@ public class CameraButton extends View {
 
             mIconPaints[i] = paint;
         }
+    }
+
+    private void disposeIcons() {
+        mIconShaders = null;
+        mIconPaints = null;
+        mIconMatrices = null;
+
     }
 
     /**
@@ -928,7 +952,20 @@ public class CameraButton extends View {
         mShouldCheckConsistency = checkConsistency;
     }
 
-    public void setIcons(@DrawableRes int[] icons) {
+    public int getIconSize() {
+        return mIconSize;
+    }
+
+    public void setIconSize(@Px int iconSize) {
+        mIconSize = Constraints.checkDimension(iconSize);
+    }
+
+    public void setIcons(@Nullable @DrawableRes int[] icons) {
+        if (icons == null) {
+            disposeIcons();
+            return;
+        }
+
         Resources resources = getResources();
         BitmapShader[] shaders = new BitmapShader[icons.length];
         for (int i = 0; i < icons.length; i++) {
@@ -937,25 +974,35 @@ public class CameraButton extends View {
                     Shader.TileMode.CLAMP,
                     Shader.TileMode.CLAMP);
         }
+
         mIconShaders = shaders;
         invalidateIcons();
     }
 
-    public void setIcons(Bitmap[] icons) {
+    public void setIcons(@Nullable Bitmap[] icons) {
+        if (icons == null) {
+            disposeIcons();
+            return;
+        }
+
         BitmapShader[] shaders = new BitmapShader[icons.length];
         for (int i = 0; i < icons.length; i++) {
             Bitmap bitmap = Bitmap.createScaledBitmap(icons[i], mIconSize, mIconSize, false);
             shaders[i] = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
+
         mIconShaders = shaders;
         invalidateIcons();
     }
 
     public void scrollIconsToPosition(float position) {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 20f);
-        animator.addUpdateListener(animation -> {
-            mIconPosition = (float) animation.getAnimatedValue();
-            invalidate();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mIconPosition = (float) animation.getAnimatedValue();
+                invalidate();
+            }
         });
         animator.setInterpolator(new DecelerateInterpolator());
         animator.setDuration(800);
