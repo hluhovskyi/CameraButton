@@ -670,6 +670,11 @@ public class CameraButton extends View {
                     "Sum of MainCircleRadius and ProgressArcWidth can't be greater than width or height. " +
                             "MainCircleRadius=" + mMainCircleRadius + "px, ProgressArcWidth=" + mProgressArcWidth + "px, width=" + width + "px, height=" + height + "px");
         }
+        if (mIconSize / Math.sqrt(2) > mMainCircleRadius) {
+            throw new ConsistencyValidationException(
+                    "Icon can't be inscribed in the main button area. " +
+                            "MainCircleRadius=" + mMainCircleRadius + "px, IconSize=" + mIconSize + "px");
+        }
     }
 
     private void invalidateProgressArcArea(int centerX, int centerY, float strokeRadius, float arcWidth) {
@@ -715,10 +720,10 @@ public class CameraButton extends View {
     }
 
     private void disposeIcons() {
+        mIconPosition = NO_ICON;
         mIconShaders = null;
         mIconPaints = null;
         mIconMatrices = null;
-
     }
 
     /**
@@ -980,7 +985,7 @@ public class CameraButton extends View {
     }
 
     public void setIcons(@Nullable Bitmap[] icons) {
-        if (icons == null) {
+        if (icons == null || icons.length == 0) {
             disposeIcons();
             return;
         }

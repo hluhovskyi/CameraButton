@@ -33,7 +33,8 @@ class CameraButtonConsistencyTest {
     private lateinit var canvas: Canvas
     private lateinit var button: CameraButton
 
-    @get:Rule
+    @Rule
+    @JvmField
     val exceptionRule: ExpectedException = ExpectedException.none()
 
     @Before
@@ -50,6 +51,7 @@ class CameraButtonConsistencyTest {
             strokeWidth = STROKE_WIDTH
             mainCircleRadiusExpanded = MAIN_CIRCLE_RADIUS_EXPANDED
             progressArcWidth = PROGRESS_ARC_WIDTH
+            iconSize = ICON_SIZE
         }
     }
 
@@ -95,6 +97,15 @@ class CameraButtonConsistencyTest {
     }
 
     @Test
+    fun testConsistencyIconSizeInvalid() {
+        exceptionRule.expect(ConsistencyValidationException::class.java)
+        exceptionRule.expectMessage("Icon")
+
+        button.iconSize = (MAIN_CIRCLE_RADIUS * Math.sqrt(2.0) + 1).toInt()
+        button.onDraw(canvas)
+    }
+
+    @Test
     fun testConsistencyInvalidButNotValidated() {
         button.apply {
             mainCircleRadius = GREATER_THAN_CANVAS_SIZE
@@ -116,5 +127,6 @@ class CameraButtonConsistencyTest {
         private const val STROKE_WIDTH = 10
         private const val MAIN_CIRCLE_RADIUS_EXPANDED = 10
         private const val PROGRESS_ARC_WIDTH = 10
+        private const val ICON_SIZE = 5
     }
 }
