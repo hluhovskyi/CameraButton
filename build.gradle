@@ -18,9 +18,9 @@ buildscript {
     }
 
     ext {
-        publish_userOrg = 'dewarder'
-        publish_groupId = 'com.dewarder'
-        publish_website = 'https://github.com/dewarder/CameraButton'
+        publish_userOrg = 'hluhovskyi'
+        publish_groupId = 'com.hluhovskyi'
+        publish_website = 'https://github.com/hluhovskyi/CameraButton'
     }
 
     repositories {

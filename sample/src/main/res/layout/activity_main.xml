@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context="com.dewarder.camerabutton.sample.MainActivity">
+    tools:context="com.hluhovskyi.camerabutton.sample.MainActivity">
 
     <io.fotoapparat.view.CameraView
         android:id="@+id/camera_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.dewarder.camerabutton.CameraButton
+    <com.hluhovskyi.camerabutton.CameraButton
         android:id="@+id/camera_button"
         android:layout_width="@dimen/cb_layout_width_default"
         android:layout_height="@dimen/cb_layout_height_default"
