@@ -35,6 +35,7 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -47,7 +48,6 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import static com.dewarder.camerabutton.CameraButton.Action.CLICK;
-import static com.dewarder.camerabutton.CameraButton.Action.RELEASE;
 import static com.dewarder.camerabutton.CameraButton.State.DEFAULT;
 import static com.dewarder.camerabutton.CameraButton.State.EXPANDED;
 import static com.dewarder.camerabutton.CameraButton.State.PRESSED;
@@ -79,6 +79,19 @@ public class CameraButton extends View {
 
     public interface OnProgressChangeListener {
         void onProgressChanged(@FloatRange(from = 0, to = 1) float progress);
+    }
+
+    @IntDef({Mode.ALL, Mode.TAP, Mode.HOLD})
+    @interface Mode {
+        int ALL = 0;
+        int TAP = 1;
+        int HOLD = 2;
+    }
+
+    @IntDef({Action.RELEASE, Action.CLICK})
+    @interface Action {
+        int RELEASE = 0;
+        int CLICK = 1;
     }
 
     public static final float DEFAULT_GRADIENT_ROTATION_MULTIPLIER = 1.75f;
@@ -123,9 +136,9 @@ public class CameraButton extends View {
     private float mIconPosition = NO_ICON;
 
     //Logic
-    private Mode mCurrentMode;
+    private int mCurrentMode;
+    private int mCollapseAction = Action.RELEASE;
     private State mCurrentState = DEFAULT;
-    private Action mCollapseAction = RELEASE;
     private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
     private float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
@@ -252,15 +265,15 @@ public class CameraButton extends View {
                         R.styleable.CameraButton_cb_icon_size,
                         R.dimen.cb_icon_size_default));
 
-        mCurrentMode = Mode.fromValue(
+        mCurrentMode =
                 array.getInteger(
                         R.styleable.CameraButton_cb_mode,
-                        DEFAULT_MODE_INDEX));
+                        DEFAULT_MODE_INDEX);
 
-        mCollapseAction = Action.fromValue(
+        mCollapseAction =
                 array.getInteger(
                         R.styleable.CameraButton_cb_collapse_action,
-                        DEFAULT_COLLAPSE_ACTION_INDEX));
+                        DEFAULT_COLLAPSE_ACTION_INDEX);
 
         array.recycle();
 
@@ -371,7 +384,7 @@ public class CameraButton extends View {
      * {@link CameraButton#mExpandDelay} delay
      */
     private void postExpandingMessageIfNeeded() {
-        if (mCurrentMode.isHoldAllowed()) {
+        if (isExpandable()) {
             mExpandMessage = new Runnable() {
                 @Override
                 public void run() {
@@ -383,7 +396,7 @@ public class CameraButton extends View {
 
             //In case when mode doesn't allow hold - post message immediately
             //so button will start expanding right after a tap
-            if (mCurrentMode.isTapAllowed()) {
+            if (isPressable()) {
                 postDelayed(mExpandMessage, mExpandDelay);
             } else {
                 post(mExpandMessage);
@@ -726,6 +739,14 @@ public class CameraButton extends View {
         mIconMatrices = null;
     }
 
+    private boolean isPressable() {
+        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.TAP;
+    }
+
+    private boolean isExpandable() {
+        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.HOLD;
+    }
+
     /**
      * Handle state changing. Notifies all listener except {@link CameraButton#mProgressListener}
      * about corresponding events.
@@ -739,7 +760,7 @@ public class CameraButton extends View {
             mStateListener.onStateChanged(state);
         }
 
-        if (mHoldListener != null && mCurrentMode.isHoldAllowed()) {
+        if (mHoldListener != null && isExpandable()) {
             if (state == EXPANDED) {
                 mHoldListener.onStart();
             } else if (mCurrentState == EXPANDED && state == START_COLLAPSING) {
@@ -747,7 +768,7 @@ public class CameraButton extends View {
             }
         }
 
-        if (mTapListener != null && mCurrentMode.isTapAllowed()) {
+        if (mTapListener != null && isPressable()) {
             if (mCurrentState == PRESSED && state == DEFAULT ||
                     mCurrentState == START_EXPANDING && state == START_COLLAPSING) {
                 mTapListener.onTap();
@@ -931,22 +952,22 @@ public class CameraButton extends View {
         return mCurrentState;
     }
 
-    @NonNull
-    public Mode getMode() {
+    @Mode
+    public int getMode() {
         return mCurrentMode;
     }
 
-    public void setMode(@NonNull Mode mode) {
-        mCurrentMode = Constraints.checkNonNull(mode);
+    public void setMode(@Mode int mode) {
+        mCurrentMode = mode;
     }
 
-    @NonNull
-    public Action getCollapseAction() {
+    @Action
+    public int getCollapseAction() {
         return mCollapseAction;
     }
 
-    public void setCollapseAction(@NonNull Action action) {
-        mCollapseAction = Constraints.checkNonNull(action);
+    public void setCollapseAction(@Action int action) {
+        mCollapseAction = action;
     }
 
     public boolean shouldCheckConsistency() {
@@ -1029,56 +1050,5 @@ public class CameraButton extends View {
         START_EXPANDING,
         EXPANDED,
         START_COLLAPSING
-    }
-
-    public enum Mode {
-        ALL(true, true),
-        TAP(true, false),
-        HOLD(false, true);
-
-        private final boolean mTapAllowed;
-        private final boolean mHoldAllowed;
-
-        Mode(boolean tapAllowed, boolean holdAllowed) {
-            mTapAllowed = tapAllowed;
-            mHoldAllowed = holdAllowed;
-        }
-
-        static Mode fromValue(int value) {
-            switch (value) {
-                case 0:
-                    return ALL;
-                case 1:
-                    return TAP;
-                case 2:
-                    return HOLD;
-                default:
-                    throw new IllegalStateException("No mode corresponding to value " + value);
-            }
-        }
-
-        public boolean isTapAllowed() {
-            return mTapAllowed;
-        }
-
-        public boolean isHoldAllowed() {
-            return mHoldAllowed;
-        }
-    }
-
-    public enum Action {
-        RELEASE,
-        CLICK;
-
-        static Action fromValue(int value) {
-            switch (value) {
-                case 0:
-                    return RELEASE;
-                case 1:
-                    return CLICK;
-                default:
-                    throw new IllegalStateException("No action corresponding to value " + value);
-            }
-        }
     }
 }
