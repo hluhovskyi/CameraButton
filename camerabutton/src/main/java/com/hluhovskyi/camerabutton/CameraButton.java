@@ -99,8 +99,8 @@ public class CameraButton extends View {
 
     static final String TAG = CameraButton.class.getSimpleName();
 
-    private static final int DEFAULT_MODE_INDEX = 0;
-    private static final int DEFAULT_COLLAPSE_ACTION_INDEX = 0;
+    private static final int DEFAULT_MODE = Mode.ALL;
+    private static final int DEFAULT_COLLAPSE_ACTION = Action.RELEASE;
 
     private static final float START_ANGLE = -90f;
     private static final float SWEEP_ANGLE = 360f;
@@ -257,7 +257,7 @@ public class CameraButton extends View {
 
         mVideoDuration = Constraints.checkDuration(
                 getInteger(context, array,
-                        R.styleable.CameraButton_cb_hold_duration,
+                        R.styleable.CameraButton_cb_video_duration,
                         R.integer.cb_hold_duration_default));
 
         mIconSize = Constraints.checkDimension(
@@ -268,12 +268,12 @@ public class CameraButton extends View {
         mCurrentMode =
                 array.getInteger(
                         R.styleable.CameraButton_cb_mode,
-                        DEFAULT_MODE_INDEX);
+                        DEFAULT_MODE);
 
         mCollapseAction =
                 array.getInteger(
                         R.styleable.CameraButton_cb_collapse_action,
-                        DEFAULT_COLLAPSE_ACTION_INDEX);
+                        DEFAULT_COLLAPSE_ACTION);
 
         array.recycle();
 

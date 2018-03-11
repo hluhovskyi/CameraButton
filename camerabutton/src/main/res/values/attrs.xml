@@ -14,7 +14,7 @@
         <attr name="cb_expand_duration" format="integer"/>
         <attr name="cb_expand_delay" format="integer"/>
         <attr name="cb_collapse_duration" format="integer"/>
-        <attr name="cb_hold_duration" format="integer"/>
+        <attr name="cb_video_duration" format="integer"/>
         <attr name="cb_icon_size" format="dimension"/>
         <attr name="cb_mode" format="enum">
             <enum name="all" value="0"/>

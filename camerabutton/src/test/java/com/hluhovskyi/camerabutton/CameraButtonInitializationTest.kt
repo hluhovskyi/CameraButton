@@ -196,7 +196,7 @@ class CameraButtonInitializationTest {
     @Test
     fun testHoldDurationCustomInitializedCorrect() {
         assertCustomDuration(
-                attr = R.attr.cb_hold_duration,
+                attr = R.attr.cb_video_duration,
                 durationProvider = CameraButton::getVideoDuration)
     }
 
