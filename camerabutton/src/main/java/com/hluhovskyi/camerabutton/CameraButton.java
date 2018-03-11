@@ -47,6 +47,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import static com.hluhovskyi.camerabutton.CameraButton.Action.CLICK;
 import static com.hluhovskyi.camerabutton.CameraButton.State.DEFAULT;
 import static com.hluhovskyi.camerabutton.CameraButton.State.EXPANDED;
@@ -81,6 +84,7 @@ public class CameraButton extends View {
         void onProgressChanged(@FloatRange(from = 0, to = 1) float progress);
     }
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({Mode.ALL, Mode.PHOTO, Mode.VIDEO})
     @interface Mode {
         int ALL = 0;
@@ -88,6 +92,7 @@ public class CameraButton extends View {
         int VIDEO = 2;
     }
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({Action.RELEASE, Action.CLICK})
     @interface Action {
         int RELEASE = 0;
