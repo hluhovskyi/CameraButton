@@ -37,10 +37,10 @@ final class TapEventObservable extends Observable<TapEvent> {
         }
         Listener listener = new Listener(button, observer);
         observer.onSubscribe(listener);
-        button.setOnTapEventListener(listener);
+        button.setOnPhotoEventListener(listener);
     }
 
-    static final class Listener extends MainThreadDisposable implements CameraButton.OnTapEventListener {
+    static final class Listener extends MainThreadDisposable implements CameraButton.OnPhotoEventListener {
 
         private final CameraButton button;
         private final Observer<? super TapEvent> observer;
@@ -51,7 +51,7 @@ final class TapEventObservable extends Observable<TapEvent> {
         }
 
         @Override
-        public void onTap() {
+        public void onClick() {
             if (!isDisposed()) {
                 observer.onNext(TapEvent.create(button));
             }
@@ -59,7 +59,7 @@ final class TapEventObservable extends Observable<TapEvent> {
 
         @Override
         protected void onDispose() {
-            button.setOnTapEventListener(null);
+            button.setOnPhotoEventListener(null);
         }
     }
 }

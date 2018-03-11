@@ -65,11 +65,11 @@ public class CameraButton extends View {
         void onStateChanged(@NonNull State state);
     }
 
-    public interface OnTapEventListener {
-        void onTap();
+    public interface OnPhotoEventListener {
+        void onClick();
     }
 
-    public interface OnHoldEventListener {
+    public interface OnVideoEventListener {
         void onStart();
 
         void onFinish();
@@ -81,11 +81,11 @@ public class CameraButton extends View {
         void onProgressChanged(@FloatRange(from = 0, to = 1) float progress);
     }
 
-    @IntDef({Mode.ALL, Mode.TAP, Mode.HOLD})
+    @IntDef({Mode.ALL, Mode.PHOTO, Mode.VIDEO})
     @interface Mode {
         int ALL = 0;
-        int TAP = 1;
-        int HOLD = 2;
+        int PHOTO = 1;
+        int VIDEO = 2;
     }
 
     @IntDef({Action.RELEASE, Action.CLICK})
@@ -126,7 +126,7 @@ public class CameraButton extends View {
     private long mExpandDuration;
     private long mCollapseDuration;
     private long mExpandDelay;
-    private long mHoldDuration;
+    private long mVideoDuration;
 
     //Icons
     private Shader[] mIconShaders;
@@ -157,8 +157,8 @@ public class CameraButton extends View {
 
     //Listeners
     private OnStateChangeListener mStateListener;
-    private OnTapEventListener mTapListener;
-    private OnHoldEventListener mHoldListener;
+    private OnPhotoEventListener mPhotoListener;
+    private OnVideoEventListener mVideoListener;
     private OnProgressChangeListener mProgressListener;
 
     public CameraButton(Context context) {
@@ -255,7 +255,7 @@ public class CameraButton extends View {
                         R.styleable.CameraButton_cb_collapse_duration,
                         R.integer.cb_collapse_duration_default));
 
-        mHoldDuration = Constraints.checkDuration(
+        mVideoDuration = Constraints.checkDuration(
                 getInteger(context, array,
                         R.styleable.CameraButton_cb_hold_duration,
                         R.integer.cb_hold_duration_default));
@@ -519,7 +519,7 @@ public class CameraButton extends View {
                 animation.removeAllListeners();
             }
         });
-        animator.setDuration(mHoldDuration);
+        animator.setDuration(mVideoDuration);
         return animator;
     }
 
@@ -740,11 +740,11 @@ public class CameraButton extends View {
     }
 
     private boolean isPressable() {
-        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.TAP;
+        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.PHOTO;
     }
 
     private boolean isExpandable() {
-        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.HOLD;
+        return mCurrentMode == Mode.ALL || mCurrentMode == Mode.VIDEO;
     }
 
     /**
@@ -760,18 +760,18 @@ public class CameraButton extends View {
             mStateListener.onStateChanged(state);
         }
 
-        if (mHoldListener != null && isExpandable()) {
+        if (mVideoListener != null && isExpandable()) {
             if (state == EXPANDED) {
-                mHoldListener.onStart();
+                mVideoListener.onStart();
             } else if (mCurrentState == EXPANDED && state == START_COLLAPSING) {
-                mHoldListener.onFinish();
+                mVideoListener.onFinish();
             }
         }
 
-        if (mTapListener != null && isPressable()) {
+        if (mPhotoListener != null && isPressable()) {
             if (mCurrentState == PRESSED && state == DEFAULT ||
                     mCurrentState == START_EXPANDING && state == START_COLLAPSING) {
-                mTapListener.onTap();
+                mPhotoListener.onClick();
             }
         }
 
@@ -797,12 +797,12 @@ public class CameraButton extends View {
         mStateListener = listener;
     }
 
-    public void setOnTapEventListener(@Nullable OnTapEventListener listener) {
-        mTapListener = listener;
+    public void setOnPhotoEventListener(@Nullable OnPhotoEventListener listener) {
+        mPhotoListener = listener;
     }
 
-    public void setOnHoldEventListener(@Nullable OnHoldEventListener listener) {
-        mHoldListener = listener;
+    public void setOnVideoEventListener(@Nullable OnVideoEventListener listener) {
+        mVideoListener = listener;
     }
 
     public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
@@ -925,12 +925,12 @@ public class CameraButton extends View {
     }
 
     @IntRange(from = 1)
-    public long getHoldDuration() {
-        return mHoldDuration;
+    public long getVideoDuration() {
+        return mVideoDuration;
     }
 
-    public void setHoldDuration(@IntRange(from = 1) long duration) {
-        mHoldDuration = Constraints.checkDuration(duration);
+    public void setVideoDuration(@IntRange(from = 1) long duration) {
+        mVideoDuration = Constraints.checkDuration(duration);
     }
 
     @FloatRange(from = 0, fromInclusive = false)

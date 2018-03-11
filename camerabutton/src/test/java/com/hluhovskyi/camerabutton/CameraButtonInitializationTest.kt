@@ -189,7 +189,7 @@ class CameraButtonInitializationTest {
     @Test
     fun testHoldDurationDefaultInitializedCorrect() {
         assertDefaultDuration(
-                durationProvider = CameraButton::getHoldDuration,
+                durationProvider = CameraButton::getVideoDuration,
                 durationRes = R.integer.cb_hold_duration_default)
     }
 
@@ -197,7 +197,7 @@ class CameraButtonInitializationTest {
     fun testHoldDurationCustomInitializedCorrect() {
         assertCustomDuration(
                 attr = R.attr.cb_hold_duration,
-                durationProvider = CameraButton::getHoldDuration)
+                durationProvider = CameraButton::getVideoDuration)
     }
 
     @Test
@@ -229,16 +229,16 @@ class CameraButtonInitializationTest {
 
     @Test
     fun testModeTapCustomInitializedCorrect() {
-        val attrs = createAttrs(R.attr.cb_mode, "tap")
+        val attrs = createAttrs(R.attr.cb_mode, "photo")
         val button = CameraButton(context, attrs)
-        assertEquals(button.mode, CameraButton.Mode.TAP)
+        assertEquals(button.mode, CameraButton.Mode.PHOTO)
     }
 
     @Test
     fun testModeHoldCustomInitializedCorrect() {
-        val attrs = createAttrs(R.attr.cb_mode, "hold")
+        val attrs = createAttrs(R.attr.cb_mode, "video")
         val button = CameraButton(context, attrs)
-        assertEquals(button.mode, CameraButton.Mode.HOLD)
+        assertEquals(button.mode, CameraButton.Mode.VIDEO)
     }
 
     @Test

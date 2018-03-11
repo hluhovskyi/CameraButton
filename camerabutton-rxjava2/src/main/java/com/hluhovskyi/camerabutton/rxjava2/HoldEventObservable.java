@@ -37,10 +37,10 @@ final class HoldEventObservable extends Observable<HoldEvent> {
         }
         Listener listener = new Listener(button, observer);
         observer.onSubscribe(listener);
-        button.setOnHoldEventListener(listener);
+        button.setOnVideoEventListener(listener);
     }
 
-    static final class Listener extends MainThreadDisposable implements CameraButton.OnHoldEventListener {
+    static final class Listener extends MainThreadDisposable implements CameraButton.OnVideoEventListener {
 
         private final CameraButton button;
         private final Observer<? super HoldEvent> observer;
@@ -73,7 +73,7 @@ final class HoldEventObservable extends Observable<HoldEvent> {
 
         @Override
         protected void onDispose() {
-            button.setOnHoldEventListener(null);
+            button.setOnVideoEventListener(null);
         }
     }
 }

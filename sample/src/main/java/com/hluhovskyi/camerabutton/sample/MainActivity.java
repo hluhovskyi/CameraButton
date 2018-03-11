@@ -78,10 +78,10 @@ public class MainActivity extends BaseActivity {
                 BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
         });
 
-        getCameraButton().setOnTapEventListener(() -> {
+        getCameraButton().setOnPhotoEventListener(() -> {
             getCameraButton().setIconsPosition(1.5f);
         });
-        getCameraButton().setOnHoldEventListener(new CameraButton.OnHoldEventListener() {
+        getCameraButton().setOnVideoEventListener(new CameraButton.OnVideoEventListener() {
             @Override
             public void onStart() {
                 startRecordVideo();
