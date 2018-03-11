@@ -38,4 +38,6 @@ dependencies {
     androidTestImplementation "junit:junit:$junit_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_core_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
+    androidTestImplementation "org.mockito:mockito-android:2.15.0"
+
 }

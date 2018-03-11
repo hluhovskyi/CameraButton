@@ -27,47 +27,39 @@ import com.hluhovskyi.camerabutton.util.state
 import com.hluhovskyi.camerabutton.util.waitFor
 import org.junit.Test
 
-class ModeHoldStateTest : BaseStateTest() {
+class ModePhotoStateTest : BaseStateTest() {
 
     override fun setUp() {
         super.setUp()
         activityRule.activity.button.apply {
-            mode = Mode.HOLD
+            mode = Mode.PHOTO
         }
     }
 
     @Test
-    fun testOnPressHasStartExpandingState() {
+    fun testOnPressHasPressedState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .check(matches(state(State.START_EXPANDING)))
+                .check(matches(state(State.PRESSED)))
     }
 
     @Test
-    fun testOnHoldAfterDelayHasExpandedState() {
+    fun testOnHoldAfterDelayNotExpandedAndHasPressedState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
+                .perform(waitFor(expandDelay()))
+                .check(matches(state(State.PRESSED)))
                 .perform(waitFor(expandDuration()))
-                .check(matches(state(State.EXPANDED)))
+                .check(matches(state(State.PRESSED)))
     }
 
     @Test
-    fun testOnReleaseAfterDelayHasStartCollapsingState() {
+    fun testOnReleaseAfterDelayNotCollapsingAndHasDefaultState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDuration()))
+                .perform(waitFor(expandDelay() + expandDuration()))
+                .check(matches(state(State.PRESSED)))
                 .perform(release())
-                .check(matches(state(State.START_COLLAPSING)))
-    }
-
-    @Test
-    fun testOnReleaseAfterDelayHasDefaultState() {
-        onView(withId(buttonId()))
-                .perform(pressAndHold())
-                .perform(waitFor(expandDuration()))
-                .perform(release())
-                .perform(waitFor(collapseDuration()))
                 .check(matches(state(State.DEFAULT)))
     }
-
 }

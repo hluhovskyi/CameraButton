@@ -27,39 +27,47 @@ import com.hluhovskyi.camerabutton.util.state
 import com.hluhovskyi.camerabutton.util.waitFor
 import org.junit.Test
 
-class ModeTapStateTest : BaseStateTest() {
+class ModeVideoStateTest : BaseStateTest() {
 
     override fun setUp() {
         super.setUp()
         activityRule.activity.button.apply {
-            mode = Mode.TAP
+            mode = Mode.VIDEO
         }
     }
 
     @Test
-    fun testOnPressHasPressedState() {
+    fun testOnPressHasStartExpandingState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .check(matches(state(State.PRESSED)))
+                .check(matches(state(State.START_EXPANDING)))
     }
 
     @Test
-    fun testOnHoldAfterDelayNotExpandedAndHasPressedState() {
+    fun testOnHoldAfterDelayHasExpandedState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDelay()))
-                .check(matches(state(State.PRESSED)))
                 .perform(waitFor(expandDuration()))
-                .check(matches(state(State.PRESSED)))
+                .check(matches(state(State.EXPANDED)))
     }
 
     @Test
-    fun testOnReleaseAfterDelayNotCollapsingAndHasDefaultState() {
+    fun testOnReleaseAfterDelayHasStartCollapsingState() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDelay() + expandDuration()))
-                .check(matches(state(State.PRESSED)))
+                .perform(waitFor(expandDuration()))
                 .perform(release())
+                .check(matches(state(State.START_COLLAPSING)))
+    }
+
+    @Test
+    fun testOnReleaseAfterDelayHasDefaultState() {
+        onView(withId(buttonId()))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDuration()))
+                .perform(release())
+                .perform(waitFor(collapseDuration()))
                 .check(matches(state(State.DEFAULT)))
     }
+
 }
