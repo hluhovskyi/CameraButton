@@ -81,6 +81,11 @@ public class MainActivity extends BaseActivity {
         getCameraButton().setOnPhotoEventListener(() -> {
             getCameraButton().scrollIconsToPosition(15.5f);
         });
+
+        getCameraButton().postDelayed(() -> {
+            getCameraButton().cancel(false);
+        }, 3000);
+
         getCameraButton().setOnVideoEventListener(new CameraButton.OnVideoEventListener() {
             @Override
             public void onStart() {

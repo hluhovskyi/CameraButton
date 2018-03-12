@@ -61,10 +61,10 @@ import static com.hluhovskyi.camerabutton.TypedArrayHelper.getDimension;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getInteger;
 
 /**
- * Implementation notes
+ * Implementation notes:
  * <p>
- * No Java 8 features since library cannot be used
- * when included in project without targetCompatibility JAVA_8
+ * No Java 8 features since library cannot be used when
+ * it is included in project without targetCompatibility JAVA_8
  * <p>
  * Some fields/methods don't have private modifier. It allows to prevent generation
  * of additional synthetic methods for accessing such fields/methods from anonymous classes
@@ -127,7 +127,7 @@ public class CameraButton extends View {
         void onFinish();
 
         /**
-         * Invoked when video recording should be interrupted
+         * Invoked when video recording is interrupted
          */
         void onCancel();
     }
@@ -222,11 +222,14 @@ public class CameraButton extends View {
     private long mIconScrollSpeed = 150L;
     float mIconPosition = NO_ICON;
 
-    //Logic
+    //Config
     private int mCurrentMode;
     private int mCollapseAction = Action.RELEASE;
-    private State mCurrentState = DEFAULT;
     private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
+
+    //Logic
+    private State mCurrentState = DEFAULT;
+    boolean mIsCanceling = false;
     float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
@@ -804,10 +807,6 @@ public class CameraButton extends View {
     }
 
     private void invalidateIcons() {
-        if (mIconShaders == null) {
-            return;
-        }
-
         mIconMatrices = new Matrix[mIconShaders.length];
         mIconPaints = new Paint[mIconShaders.length];
 
@@ -905,6 +904,37 @@ public class CameraButton extends View {
     }
 
     /**
+     * Cancels video recording with animation
+     */
+    public void cancel() {
+        cancel(true);
+    }
+
+    /**
+     * Cancels video recording.
+     * In case if animated = false then START_COLLAPSING state won't be dispatched to listeners
+     * <p>
+     * Always calls {@link OnVideoEventListener#onCancel()}
+     *
+     * @param animated indicates should canceling process be animated or not
+     */
+    public void cancel(boolean animated) {
+        cancelProgressAnimatorIfNeeded();
+        cancelExpandingAnimatorIfNeeded();
+        mIsCanceling = true;
+        if (animated) {
+            mCollapseAnimator = createCollapsingAnimator();
+            mCollapseAnimator.start();
+        } else {
+            dispatchStateChange(DEFAULT);
+            mShouldCollapseOnNextClick = false;
+            mExpandingFactor = 0f;
+            mProgressFactor = 0f;
+            invalidate();
+        }
+    }
+
+    /**
      * Handle state changing. Notifies all listener except {@link CameraButton#mProgressListener}
      * about corresponding events.
      *
@@ -921,7 +951,12 @@ public class CameraButton extends View {
             if (state == EXPANDED) {
                 mVideoListener.onStart();
             } else if (mCurrentState == EXPANDED && state == START_COLLAPSING) {
-                mVideoListener.onFinish();
+                if (mIsCanceling) {
+                    mVideoListener.onCancel();
+                    mIsCanceling = false;
+                } else {
+                    mVideoListener.onFinish();
+                }
             }
         }
 
@@ -946,40 +981,61 @@ public class CameraButton extends View {
         }
     }
 
-    //==============================
-    //       Getters/Setters
-    //==============================
+    /**
+     * Sets an listener used to be notified about state changes
+     */
     public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
         mStateListener = listener;
     }
 
+    /**
+     * Sets an listener used to be notified about photo-related events
+     */
     public void setOnPhotoEventListener(@Nullable OnPhotoEventListener listener) {
         mPhotoListener = listener;
     }
 
+    /**
+     * Sets an listener used to be notified about video-related events
+     */
     public void setOnVideoEventListener(@Nullable OnVideoEventListener listener) {
         mVideoListener = listener;
     }
 
+    /**
+     * Sets an listener used to be notified about progress changes
+     */
     public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
         mProgressListener = listener;
     }
 
+    /**
+     * Returns the radius of inner circle in pixels
+     */
     @Px
     public int getMainCircleRadius() {
         return mMainCircleRadius;
     }
 
+    /**
+     * Sets an inner circle radius in pixels
+     */
     public void setMainCircleRadius(@Px int radius) {
         mMainCircleRadius = Constraints.checkDimension(radius);
         invalidate();
     }
 
+    /**
+     * Returns the radius in pixels of inner circle when button is expanded
+     */
     @Px
     public int getMainCircleRadiusExpanded() {
         return mMainCircleRadiusExpanded;
     }
 
+    /**
+     * Sets the radius of inner circle when button is expanded
+     */
     public void setMainCircleRadiusExpanded(@Px int radius) {
         mMainCircleRadiusExpanded = Constraints.checkDimension(radius);
         invalidate();
@@ -1126,10 +1182,16 @@ public class CameraButton extends View {
         mCollapseAction = action;
     }
 
+    /**
+     * Returns whatever consistency of the button should be validated during the first `onDraw`
+     */
     public boolean shouldCheckConsistency() {
         return mShouldCheckConsistency;
     }
 
+    /**
+     * Sets whatever consistency of the button should be validated during first `onDraw`
+     */
     public void setShouldCheckConsistency(boolean checkConsistency) {
         mShouldCheckConsistency = checkConsistency;
     }
@@ -1142,6 +1204,29 @@ public class CameraButton extends View {
         mIconSize = Constraints.checkDimension(iconSize);
     }
 
+    /**
+     * Returns duration about how long one icon will be fully scrolled
+     */
+    public long getIconScrollDuration() {
+        return mIconScrollSpeed;
+    }
+
+    /**
+     * Sets duration about how long one icon will be fully scrolled
+     *
+     * If icons are about to be scrolled in intermediate position like 0.5f,
+     * then duration of scroll will be pro-rata (like duration / 0.5f)
+     */
+    public void setIconScrollDuration(long duration) {
+        mIconScrollSpeed = Constraints.checkDuration(duration);
+    }
+
+    /**
+     * Sets icons which are drawn inside the inner circle of the button.
+     * In case if null or empty array is passed icons will be cleared.
+     *
+     * @param icons array of icon resources
+     */
     public void setIcons(@Nullable @DrawableRes int[] icons) {
         Bitmap[] bitmaps = null;
 
@@ -1158,6 +1243,12 @@ public class CameraButton extends View {
         setIcons(bitmaps);
     }
 
+    /**
+     * Sets icons which are drawn inside the inner circle of the button.
+     * In case if null or empty array is passed icons will be cleared.
+     *
+     * @param icons array of icon bitmaps
+     */
     public void setIcons(@Nullable Bitmap[] icons) {
         if (icons == null || icons.length == 0) {
             disposeIcons();
@@ -1174,15 +1265,48 @@ public class CameraButton extends View {
         invalidateIcons();
     }
 
-    //=================================
-    //       Additional classes
-    //=================================
-
+    /**
+     * Describes states in which button can be. Possible lifecycle:
+     * <p>
+     * Mode.PHOTO:
+     * DEFAULT -> PRESSED -> DEFAULT
+     * <p>
+     * Mode.VIDEO:
+     * DEFAULT -> START_EXPANDING -> EXPANDED -> START_COLLAPSING -> DEFAULT
+     * DEFAULT -> START_EXPANDING -> EXPANDED -[cancel]-> DEFAULT
+     * <p>
+     * Mode.ALL:
+     * DEFAULT -> PRESSED -> DEFAULT
+     * DEFAULT -> START_EXPANDING -> EXPANDED -> START_COLLAPSING -> DEFAULT
+     * DEFAULT -> START_EXPANDING -> EXPANDED -[cancel]-> DEFAULT
+     */
     public enum State {
+
+        /**
+         * Describes state in which user doesn't interact with button somehow.
+         */
         DEFAULT,
+
+        /**
+         * Describes state in which user presses and holds button for short period of time
+         * or for long time in case if {@link CameraButton#getMode()} is {@link Mode#PHOTO}
+         */
         PRESSED,
+
+        /**
+         * Describes state in which button begins expanding.
+         */
         START_EXPANDING,
+
+        /**
+         * Describes state in which button is expanded and progress of video recording is
+         * visible for the user
+         */
         EXPANDED,
+
+        /**
+         * Describes state in which buttons begins collapsing.
+         */
         START_COLLAPSING
     }
 }
