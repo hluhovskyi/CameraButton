@@ -60,37 +60,118 @@ import static com.hluhovskyi.camerabutton.TypedArrayHelper.getColors;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getDimension;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getInteger;
 
+/**
+ * Implementation notes
+ * <p>
+ * No Java 8 features since library cannot be used
+ * when included in project without targetCompatibility JAVA_8
+ * <p>
+ * Some fields/methods don't have private modifier. It allows to prevent generation
+ * of additional synthetic methods for accessing such fields/methods from anonymous classes
+ * <p>
+ * {@link CameraButton.Action} and {@link CameraButton.Mode} uses {@link IntDef} to consume
+ * less memory.
+ * But {@link CameraButton.State} is declared as enum to allow write exhaustive expressions in Kotlin.
+ */
 @SuppressWarnings("unused")
 public class CameraButton extends View {
 
+    /**
+     * Interface used to handle state changes events of the button
+     *
+     * @see CameraButton#setOnStateChangeListener(OnStateChangeListener)
+     */
     public interface OnStateChangeListener {
+
+        /**
+         * Invoked when state of the button is changed
+         *
+         * @param state new state of the button
+         */
         void onStateChanged(@NonNull State state);
     }
 
+    /**
+     * Interface used to handle user actions which corresponds to make photo
+     */
     public interface OnPhotoEventListener {
+
+        /**
+         * Invoked when user interaction with button is treated as "click":
+         * - User simply clicks it
+         * - User holds it less than {@link CameraButton#getExpandDelay()}
+         * - Button starts expanding but immediately released (holdDuration < expandDelay + expandDuration)
+         * - Every interaction when {@link CameraButton#getMode()} is {@link CameraButton.Mode#PHOTO}
+         */
         void onClick();
     }
 
+    /**
+     * Interface used to handle user actions which corresponds to take video
+     */
     public interface OnVideoEventListener {
+
+        /**
+         * Invoked when user interaction with button is treated as "start recording":
+         * - User holds it longer than expandDelay + expandDuration
+         * - User touch it when {@link CameraButton#getMode()} is {@link CameraButton.Mode#VIDEO}
+         */
         void onStart();
 
+        /**
+         * Invoked when user interaction with button is treated as "stop recording"
+         * - User release it when button is {@link CameraButton.State#EXPANDED}
+         * - User clicks it when button is {@link CameraButton.State#EXPANDED}
+         * and {@link CameraButton#getCollapseAction()} is {@link CameraButton.Action#CLICK}
+         */
         void onFinish();
 
+        /**
+         * Invoked when video recording should be interrupted
+         */
         void onCancel();
     }
 
+    /**
+     * Interface user to handle video recording progress changes
+     */
     public interface OnProgressChangeListener {
+
+        /**
+         * Invoked on every tick of video recording where progress = 0f is beginning
+         * and progress = 1f is finishing of recording
+         *
+         * @param progress new progress
+         */
         void onProgressChanged(@FloatRange(from = 0, to = 1) float progress);
     }
 
+    /**
+     * Describes which type of actions should be handled by button
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Mode.ALL, Mode.PHOTO, Mode.VIDEO})
     @interface Mode {
+
+        /**
+         * Describes mode which handles both photo and video type of actions
+         */
         int ALL = 0;
+
+        /**
+         * Describes mode which handles only photo actions
+         */
         int PHOTO = 1;
+
+        /**
+         * Describes mode which handles only video actions
+         */
         int VIDEO = 2;
     }
 
+    /**
+     * Describes possible user action
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Action.RELEASE, Action.CLICK})
     @interface Action {
