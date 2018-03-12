@@ -40,7 +40,6 @@ class ModeAllStateListenerTest : BaseStateTest() {
 
     override fun setUp() {
         super.setUp()
-        MockitoAnnotations.initMocks(this)
 
         activityRule.activity.button.setOnStateChangeListener(listener)
     }

@@ -22,16 +22,19 @@ import com.hluhovskyi.camerabutton.util.disposeHoldActions
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
+import org.mockito.MockitoAnnotations
 
 abstract class BaseStateTest {
 
-    @get:Rule
-    val activityRule: ActivityTestRule<CameraButtonActivity>
-            = ActivityTestRule(CameraButtonActivity::class.java)
+    @Rule
+    @JvmField
+    val activityRule = ActivityTestRule(CameraButtonActivity::class.java)
 
     @Before
     @CallSuper
     open fun setUp() {
+        MockitoAnnotations.initMocks(this)
+
         activityRule.activity.button.apply {
             id = BUTTON_ID
             expandDelay = EXPAND_DELAY
