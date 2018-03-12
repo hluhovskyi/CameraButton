@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity {
         });
 
         getCameraButton().setOnPhotoEventListener(() -> {
-            getCameraButton().setIconsPosition(1.5f);
+            getCameraButton().scrollIconsToPosition(15.5f);
         });
         getCameraButton().setOnVideoEventListener(new CameraButton.OnVideoEventListener() {
             @Override

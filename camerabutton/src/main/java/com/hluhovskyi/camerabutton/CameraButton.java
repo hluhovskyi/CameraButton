@@ -45,7 +45,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -109,6 +108,7 @@ public class CameraButton extends View {
 
     private static final float START_ANGLE = -90f;
     private static final float SWEEP_ANGLE = 360f;
+    private static final float TRANSLATION_SCALE_THRESHOLD = 0.4f;
 
     private final Paint mMainCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -138,6 +138,7 @@ public class CameraButton extends View {
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
     private int mIconSize;
+    private long mIconScrollSpeed = 150L;
     float mIconPosition = NO_ICON;
 
     //Logic
@@ -158,6 +159,7 @@ public class CameraButton extends View {
     ValueAnimator mExpandAnimator = null;
     ValueAnimator mCollapseAnimator = null;
     ValueAnimator mProgressAnimator = null;
+    ValueAnimator mIconScrollAnimator = null;
     Runnable mExpandMessage = null;
 
     //Listeners
@@ -656,14 +658,19 @@ public class CameraButton extends View {
         );
     }
 
-    //TODO: Extract magic numbers to constants
     private float calculateTranslation(float progress) {
-        float interpolated = progress <= 0.4f ? progress / 0.4f : 1f;
+        float interpolated = progress <= TRANSLATION_SCALE_THRESHOLD
+                ? progress / TRANSLATION_SCALE_THRESHOLD
+                : 1f;
+
         return (mMainCircleRadius - mIconSize / 2f) * interpolated;
     }
 
     private float calculateIconWidth(float progress) {
-        float interpolated = progress < 0.4f ? 0 : (progress - 0.4f) / 0.6f;
+        float interpolated = progress < TRANSLATION_SCALE_THRESHOLD
+                ? 0
+                : (progress - TRANSLATION_SCALE_THRESHOLD) / (1 - TRANSLATION_SCALE_THRESHOLD);
+
         return mIconSize - mIconSize * interpolated;
     }
 
@@ -753,6 +760,70 @@ public class CameraButton extends View {
     }
 
     /**
+     * Scrolls icons with animation to concrete position.
+     * The position is float since it is valid to scroll to an intermediate position (e.g. 0.5f)
+     *
+     * @param position to which icons should be scrolled
+     * @throws IllegalStateException if icons are not set
+     * @throws IllegalStateException if position is greater than icons count
+     */
+    public void scrollIconsToPosition(@FloatRange(from = 0f) float position) {
+        checkCanScroll(position);
+        cancelScrollIfNeeded();
+
+        float from = mIconPosition == NO_ICON ? 0 : mIconPosition;
+
+        mIconScrollAnimator = ValueAnimator.ofFloat(from, position);
+        mIconScrollAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mIconPosition = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        mIconScrollAnimator.setInterpolator(Interpolators.getDecelerateInterpolator());
+
+        long duration = (long) (Math.abs(from - position) * mIconScrollSpeed);
+        mIconScrollAnimator.setDuration(duration);
+
+        mIconScrollAnimator.start();
+    }
+
+    void cancelScrollIfNeeded() {
+        if (mIconScrollAnimator != null) {
+            mIconScrollAnimator.cancel();
+            mIconScrollAnimator = null;
+        }
+    }
+
+    /**
+     * Immediately scrolls icons without animation to concrete position
+     * The position is float since it is valid to set an intermediate position (e.g. 0.5f)
+     *
+     * @param position to which icons should be scrolled
+     * @throws IllegalStateException if icons are not set
+     * @throws IllegalStateException if position is greater than icons count
+     */
+    public void setIconsPosition(@FloatRange(from = 0f) float position) {
+        checkCanScroll(position);
+        cancelScrollIfNeeded();
+
+        mIconPosition = position;
+        invalidate();
+    }
+
+    private void checkCanScroll(float position) {
+        if (mIconPosition == NO_ICON && mIconShaders == null) {
+            throw new IllegalStateException(
+                    "`setIcons` must be called before `scrollIconsToPosition`/`setIconsPosition`");
+        }
+        if (position > mIconShaders.length) {
+            throw new IllegalStateException(
+                    "`position` (" + position + ") can't be greater than icons count (" + mIconShaders.length + ")");
+        }
+    }
+
+    /**
      * Handle state changing. Notifies all listener except {@link CameraButton#mProgressListener}
      * about corresponding events.
      *
@@ -797,7 +868,6 @@ public class CameraButton extends View {
     //==============================
     //       Getters/Setters
     //==============================
-
     public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
         mStateListener = listener;
     }
@@ -992,22 +1062,19 @@ public class CameraButton extends View {
     }
 
     public void setIcons(@Nullable @DrawableRes int[] icons) {
-        if (icons == null) {
-            disposeIcons();
-            return;
+        Bitmap[] bitmaps = null;
+
+        if (icons != null) {
+            bitmaps = new Bitmap[icons.length];
+            Resources resources = getResources();
+
+            for (int i = 0; i < icons.length; i++) {
+                int iconRes = icons[i];
+                bitmaps[i] = BitmapFactory.decodeResource(resources, icons[i]);
+            }
         }
 
-        Resources resources = getResources();
-        BitmapShader[] shaders = new BitmapShader[icons.length];
-        for (int i = 0; i < icons.length; i++) {
-            shaders[i] = new BitmapShader(
-                    BitmapFactory.decodeResource(resources, icons[i]),
-                    Shader.TileMode.CLAMP,
-                    Shader.TileMode.CLAMP);
-        }
-
-        mIconShaders = shaders;
-        invalidateIcons();
+        setIcons(bitmaps);
     }
 
     public void setIcons(@Nullable Bitmap[] icons) {
@@ -1024,25 +1091,6 @@ public class CameraButton extends View {
 
         mIconShaders = shaders;
         invalidateIcons();
-    }
-
-    public void scrollIconsToPosition(float position) {
-        ValueAnimator animator = ValueAnimator.ofFloat(0f, 20f);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mIconPosition = (float) animation.getAnimatedValue();
-                invalidate();
-            }
-        });
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.setDuration(800);
-        animator.start();
-    }
-
-    public void setIconsPosition(float position) {
-        mIconPosition = position;
-        invalidate();
     }
 
     //=================================

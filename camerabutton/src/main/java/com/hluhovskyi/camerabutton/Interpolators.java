@@ -16,16 +16,22 @@
 
 package com.hluhovskyi.camerabutton;
 
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 final class Interpolators {
 
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
+    private static final Interpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
     private static final float INTERPOLATING_ARC_WIDTH_FACTOR_FROM = 0.4f;
 
     static Interpolator getLinearInterpolator() {
         return LINEAR_INTERPOLATOR;
+    }
+
+    static Interpolator getDecelerateInterpolator() {
+        return DECELERATE_INTERPOLATOR;
     }
 
     static float interpolateArcWidth(float factor) {
