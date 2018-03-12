@@ -17,7 +17,7 @@
         <attr name="cb_video_duration" format="integer"/>
         <attr name="cb_icons" format="reference"/>
         <attr name="cb_icon_size" format="dimension"/>
-        <attr name="cb_icon_scroll_speed" format="integer"/>
+        <attr name="cb_icon_scroll_duration" format="integer"/>
         <attr name="cb_mode" format="enum">
             <enum name="all" value="0"/>
             <enum name="photo" value="1"/>

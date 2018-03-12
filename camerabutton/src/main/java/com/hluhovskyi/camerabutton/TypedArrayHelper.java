@@ -23,7 +23,9 @@ import android.support.annotation.ArrayRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntegerRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.Px;
 import android.support.annotation.StyleableRes;
 
@@ -64,6 +66,16 @@ final class TypedArrayHelper {
 
         return context.getResources().getIntArray(
                 array.getResourceId(attr, defaultColorsRes));
+    }
+
+    @DrawableRes
+    @Nullable
+    static int[] getDrawableResources(Context context,
+                                      TypedArray array,
+                                      @StyleableRes int attr) {
+
+        int resourceId = array.getResourceId(attr, -1);
+        return resourceId == -1 ? null : context.getResources().getIntArray(resourceId);
     }
 
     static int getInteger(Context context,

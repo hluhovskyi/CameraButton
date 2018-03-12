@@ -215,6 +215,20 @@ class CameraButtonInitializationTest {
     }
 
     @Test
+    fun testIconScrollDurationDefaultInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_icon_scroll_duration,
+                durationProvider = CameraButton::getIconScrollDuration)
+    }
+
+    @Test
+    fun testIconScrollDurationCustomInitializedCorrect() {
+        assertCustomDuration(
+                attr = R.attr.cb_icon_scroll_duration,
+                durationProvider = CameraButton::getIconScrollDuration)
+    }
+
+    @Test
     fun testModeDefaultInitializedCorrect() {
         val button = CameraButton(context)
         assertEquals(button.mode, CameraButton.Mode.ALL)

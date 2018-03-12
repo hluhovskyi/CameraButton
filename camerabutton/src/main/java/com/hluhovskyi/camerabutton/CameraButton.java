@@ -58,6 +58,7 @@ import static com.hluhovskyi.camerabutton.CameraButton.State.START_EXPANDING;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getColor;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getColors;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getDimension;
+import static com.hluhovskyi.camerabutton.TypedArrayHelper.getDrawableResources;
 import static com.hluhovskyi.camerabutton.TypedArrayHelper.getInteger;
 
 /**
@@ -219,7 +220,7 @@ public class CameraButton extends View {
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
     private int mIconSize;
-    private long mIconScrollSpeed = 150L;
+    private long mIconScrollDuration;
     float mIconPosition = NO_ICON;
 
     //Config
@@ -356,15 +357,23 @@ public class CameraButton extends View {
                         R.styleable.CameraButton_cb_icon_size,
                         R.dimen.cb_icon_size_default));
 
-        mCurrentMode =
-                array.getInteger(
-                        R.styleable.CameraButton_cb_mode,
-                        DEFAULT_MODE);
+        mIconScrollDuration = Constraints.checkDuration(
+                getInteger(context, array,
+                        R.styleable.CameraButton_cb_icon_scroll_duration,
+                        R.integer.cb_icon_scroll_duration_default));
 
-        mCollapseAction =
-                array.getInteger(
-                        R.styleable.CameraButton_cb_collapse_action,
-                        DEFAULT_COLLAPSE_ACTION);
+        setIcons(getDrawableResources(
+                context,
+                array,
+                R.styleable.CameraButton_cb_icons));
+
+        mCurrentMode = array.getInteger(
+                R.styleable.CameraButton_cb_mode,
+                DEFAULT_MODE);
+
+        mCollapseAction = array.getInteger(
+                R.styleable.CameraButton_cb_collapse_action,
+                DEFAULT_COLLAPSE_ACTION);
 
         array.recycle();
 
@@ -863,7 +872,7 @@ public class CameraButton extends View {
         });
         mIconScrollAnimator.setInterpolator(Interpolators.getDecelerateInterpolator());
 
-        long duration = (long) (Math.abs(from - position) * mIconScrollSpeed);
+        long duration = (long) (Math.abs(from - position) * mIconScrollDuration);
         mIconScrollAnimator.setDuration(duration);
 
         mIconScrollAnimator.start();
@@ -1208,17 +1217,17 @@ public class CameraButton extends View {
      * Returns duration about how long one icon will be fully scrolled
      */
     public long getIconScrollDuration() {
-        return mIconScrollSpeed;
+        return mIconScrollDuration;
     }
 
     /**
      * Sets duration about how long one icon will be fully scrolled
-     *
+     * <p>
      * If icons are about to be scrolled in intermediate position like 0.5f,
      * then duration of scroll will be pro-rata (like duration / 0.5f)
      */
     public void setIconScrollDuration(long duration) {
-        mIconScrollSpeed = Constraints.checkDuration(duration);
+        mIconScrollDuration = Constraints.checkDuration(duration);
     }
 
     /**
