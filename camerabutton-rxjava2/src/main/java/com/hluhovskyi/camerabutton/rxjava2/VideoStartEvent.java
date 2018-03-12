@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Artem Hluhovskyi
+ * Copyright (C) 2018 Artem Hluhovskyi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,21 @@ import android.support.annotation.NonNull;
 
 import com.hluhovskyi.camerabutton.CameraButton;
 
-public abstract class HoldEvent {
+public final class VideoStartEvent extends VideoEvent {
+
+    private final CameraButton button;
+
+    private VideoStartEvent(CameraButton button) {
+        this.button = button;
+    }
+
+    public static VideoStartEvent create(@NonNull CameraButton button) {
+        return new VideoStartEvent(button);
+    }
 
     @NonNull
-    public abstract CameraButton view();
-
-    public final CameraButton component1() {
-        return view();
+    @Override
+    public CameraButton view() {
+        return button;
     }
 }

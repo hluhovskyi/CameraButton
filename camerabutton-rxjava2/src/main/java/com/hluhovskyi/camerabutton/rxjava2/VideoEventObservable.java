@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Artem Hluhovskyi
+ * Copyright (C) 2018 Artem Hluhovskyi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,44 +22,58 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.MainThreadDisposable;
 
-final class TapEventObservable extends Observable<TapEvent> {
+final class VideoEventObservable extends Observable<VideoEvent> {
 
     private final CameraButton button;
 
-    TapEventObservable(CameraButton button) {
+    VideoEventObservable(CameraButton button) {
         this.button = button;
     }
 
     @Override
-    protected void subscribeActual(Observer<? super TapEvent> observer) {
+    protected void subscribeActual(Observer<? super VideoEvent> observer) {
         if (!Preconditions.checkMainThread(observer)) {
             return;
         }
         Listener listener = new Listener(button, observer);
         observer.onSubscribe(listener);
-        button.setOnPhotoEventListener(listener);
+        button.setOnVideoEventListener(listener);
     }
 
-    static final class Listener extends MainThreadDisposable implements CameraButton.OnPhotoEventListener {
+    static final class Listener extends MainThreadDisposable implements CameraButton.OnVideoEventListener {
 
         private final CameraButton button;
-        private final Observer<? super TapEvent> observer;
+        private final Observer<? super VideoEvent> observer;
 
-        Listener(CameraButton button, Observer<? super TapEvent> observer) {
+        Listener(CameraButton button, Observer<? super VideoEvent> observer) {
             this.button = button;
             this.observer = observer;
         }
 
         @Override
-        public void onClick() {
+        public void onStart() {
             if (!isDisposed()) {
-                observer.onNext(TapEvent.create(button));
+                observer.onNext(VideoStartEvent.create(button));
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            if (!isDisposed()) {
+                observer.onNext(VideoFinishEvent.create(button));
+            }
+        }
+
+        @Override
+        public void onCancel() {
+            if (!isDisposed()) {
+                observer.onNext(VideoCancelEvent.create(button));
             }
         }
 
         @Override
         protected void onDispose() {
-            button.setOnPhotoEventListener(null);
+            button.setOnVideoEventListener(null);
         }
     }
 }

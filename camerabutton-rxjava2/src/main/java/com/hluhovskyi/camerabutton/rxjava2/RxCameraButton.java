@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Artem Hluhovskyi
+ * Copyright (C) 2018 Artem Hluhovskyi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ public final class RxCameraButton {
         return new ProgressEventObservable(button);
     }
 
-    public static Observable<TapEvent> tapEvents(@NonNull CameraButton button) {
+    public static Observable<PhotoEvent> photoEvents(@NonNull CameraButton button) {
         Constraints.checkNonNull(button);
-        return new TapEventObservable(button);
+        return new PhotoEventObservable(button);
     }
 
-    public static Observable<HoldEvent> holdEvents(@NonNull CameraButton button) {
+    public static Observable<VideoEvent> videoEvents(@NonNull CameraButton button) {
         Constraints.checkNonNull(button);
-        return new HoldEventObservable(button);
+        return new VideoEventObservable(button);
     }
 }
