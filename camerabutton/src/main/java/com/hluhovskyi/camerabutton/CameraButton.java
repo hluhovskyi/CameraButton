@@ -138,14 +138,14 @@ public class CameraButton extends View {
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
     private int mIconSize;
-    private float mIconPosition = NO_ICON;
+    float mIconPosition = NO_ICON;
 
     //Logic
     private int mCurrentMode;
     private int mCollapseAction = Action.RELEASE;
     private State mCurrentState = DEFAULT;
     private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
-    private float mExpandingFactor = 0f;
+    float mExpandingFactor = 0f;
     float mProgressFactor = 0f;
     private RectF mProgressArcArea = null;
 
@@ -788,7 +788,7 @@ public class CameraButton extends View {
      *
      * @param progress - new progress value
      */
-    private void dispatchProgressChange(float progress) {
+    void dispatchProgressChange(float progress) {
         if (mProgressListener != null) {
             mProgressListener.onProgressChanged(progress);
         }
