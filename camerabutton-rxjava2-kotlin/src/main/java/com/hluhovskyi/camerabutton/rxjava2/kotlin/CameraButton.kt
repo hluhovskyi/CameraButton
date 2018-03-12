@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Artem Hluhovskyi
+ * Copyright (C) 2018 Artem Hluhovskyi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ fun CameraButton.progress(): Observable<Float>
 fun CameraButton.progressEvents(): Observable<ProgressEvent>
         = RxCameraButton.progressEvents(this)
 
-fun CameraButton.tapEvents(): Observable<TapEvent>
-        = RxCameraButton.tapEvents(this)
+fun CameraButton.photoEvents(): Observable<PhotoEvent>
+        = RxCameraButton.photoEvents(this)
 
-fun CameraButton.holdEvents(): Observable<HoldEvent>
-        = RxCameraButton.holdEvents(this)
+fun CameraButton.videoEvents(): Observable<VideoEvent>
+        = RxCameraButton.videoEvents(this)
