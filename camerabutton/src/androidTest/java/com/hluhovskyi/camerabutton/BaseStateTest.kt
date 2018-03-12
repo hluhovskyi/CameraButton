@@ -55,6 +55,7 @@ abstract class BaseStateTest {
         private const val EXPAND_DELAY = 200L
         private const val EXPAND_DURATION = 400L
         private const val COLLAPSE_DURATION = 400L
+        private const val VIDEO_DURATION = 1000L
 
         fun buttonId() = BUTTON_ID
 
@@ -63,5 +64,7 @@ abstract class BaseStateTest {
         fun expandDuration() = EXPAND_DURATION
 
         fun collapseDuration() = COLLAPSE_DURATION
+
+        fun videoDuration() = VIDEO_DURATION
     }
 }
