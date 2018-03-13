@@ -275,6 +275,22 @@ class CameraButtonInitializationTest {
         assertEquals(button.collapseAction, CameraButton.Action.CLICK)
     }
 
+    @Test
+    fun testGradientMultiplierDefaultInitializedCorrect() {
+        val button = CameraButton(context)
+        assertEquals(
+                CameraButton.DEFAULT_GRADIENT_ROTATION_MULTIPLIER,
+                button.gradientRotationMultiplier
+        )
+    }
+
+    @Test
+    fun testGradientMultiplierCustomInitializedCorrect() {
+        val attrs = createAttrs(R.attr.cb_gradient_rotation_multiplier, "3")
+        val button = CameraButton(context, attrs)
+        assertEquals(3f, button.gradientRotationMultiplier)
+    }
+
     private fun assertDefaultDimen(dimenProvider: (CameraButton) -> Int, @DimenRes dimenRes: Int) {
         val button = CameraButton(context)
         assertEquals(dimenProvider(button), context.resources.getDimensionPixelSize(dimenRes))

@@ -201,6 +201,7 @@ public class CameraButton extends View {
     private int mMainCircleRadiusExpanded;
     private int mStrokeWidth;
     private int mProgressArcWidth;
+    private int mIconSize;
 
     //Colors
     private int mMainCircleColor;
@@ -214,19 +215,18 @@ public class CameraButton extends View {
     private long mCollapseDuration;
     private long mExpandDelay;
     private long mVideoDuration;
+    private long mIconScrollDuration;
 
     //Icons
     private Shader[] mIconShaders;
     private Matrix[] mIconMatrices;
     private Paint[] mIconPaints;
-    private int mIconSize;
-    private long mIconScrollDuration;
     float mIconPosition = NO_ICON;
 
     //Config
     private int mCurrentMode;
-    private int mCollapseAction = Action.RELEASE;
-    private float mGradientRotationMultiplier = DEFAULT_GRADIENT_ROTATION_MULTIPLIER;
+    private int mCollapseAction;
+    private float mGradientRotationMultiplier;
 
     //Logic
     private State mCurrentState = DEFAULT;
@@ -361,6 +361,10 @@ public class CameraButton extends View {
                 getInteger(context, array,
                         R.styleable.CameraButton_cb_icon_scroll_duration,
                         R.integer.cb_icon_scroll_duration_default));
+
+        mGradientRotationMultiplier = array.getFloat(
+                R.styleable.CameraButton_cb_gradient_rotation_multiplier,
+                DEFAULT_GRADIENT_ROTATION_MULTIPLIER);
 
         setIcons(getDrawableResources(
                 context,
