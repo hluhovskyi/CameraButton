@@ -70,9 +70,9 @@ import static com.hluhovskyi.camerabutton.TypedArrayHelper.getInteger;
  * Some fields/methods don't have private modifier. It allows to prevent generation
  * of additional synthetic methods for accessing such fields/methods from anonymous classes
  * <p>
- * {@link CameraButton.Action} and {@link CameraButton.Mode} uses {@link IntDef} to consume
+ * {@link Action} and {@link Mode} uses {@link IntDef} to consume
  * less memory.
- * But {@link CameraButton.State} is declared as enum to allow write exhaustive expressions in Kotlin.
+ * But {@link State} is declared as enum to allow write exhaustive expressions in Kotlin.
  */
 @SuppressWarnings("unused")
 public class CameraButton extends View {
@@ -80,7 +80,7 @@ public class CameraButton extends View {
     /**
      * Interface used to handle state changes events of the button
      *
-     * @see CameraButton#setOnStateChangeListener(OnStateChangeListener)
+     * @see #setOnStateChangeListener(OnStateChangeListener)
      */
     public interface OnStateChangeListener {
 
@@ -100,9 +100,9 @@ public class CameraButton extends View {
         /**
          * Invoked when user interaction with button is treated as "click":
          * - User simply clicks it
-         * - User holds it less than {@link CameraButton#getExpandDelay()}
+         * - User holds it less than {@link #getExpandDelay()}
          * - Button starts expanding but immediately released (holdDuration < expandDelay + expandDuration)
-         * - Every interaction when {@link CameraButton#getMode()} is {@link CameraButton.Mode#PHOTO}
+         * - Every interaction when {@link #getMode()} is {@link Mode#PHOTO}
          */
         void onClick();
     }
@@ -115,15 +115,15 @@ public class CameraButton extends View {
         /**
          * Invoked when user interaction with button is treated as "start recording":
          * - User holds it longer than expandDelay + expandDuration
-         * - User touch it when {@link CameraButton#getMode()} is {@link CameraButton.Mode#VIDEO}
+         * - User touch it when {@link #getMode()} is {@link Mode#VIDEO}
          */
         void onStart();
 
         /**
          * Invoked when user interaction with button is treated as "stop recording"
-         * - User release it when button is {@link CameraButton.State#EXPANDED}
-         * - User clicks it when button is {@link CameraButton.State#EXPANDED}
-         * and {@link CameraButton#getCollapseAction()} is {@link CameraButton.Action#CLICK}
+         * - User release it when button is {@link State#EXPANDED}
+         * - User clicks it when button is {@link State#EXPANDED}
+         * and {@link #getCollapseAction()} is {@link Action#CLICK}
          */
         void onFinish();
 
@@ -481,7 +481,7 @@ public class CameraButton extends View {
     /**
      * Post message about to start expanding to the handler in case if mode allows it.
      * If mode also allows to tap the button message will be send with
-     * {@link CameraButton#mExpandDelay} delay
+     * {@link #mExpandDelay} delay
      */
     private void postExpandingMessageIfNeeded() {
         if (isExpandable()) {
@@ -944,7 +944,7 @@ public class CameraButton extends View {
     }
 
     /**
-     * Handle state changing. Notifies all listener except {@link CameraButton#mProgressListener}
+     * Handle state changing. Notifies all listener except {@link #mProgressListener}
      * about corresponding events.
      *
      * @param state - new state of the button
@@ -980,7 +980,7 @@ public class CameraButton extends View {
     }
 
     /**
-     * Handle progress changing. Notifies {@link CameraButton#mProgressListener} only.
+     * Handle progress changing. Notifies {@link #mProgressListener} only.
      *
      * @param progress - new progress value
      */
@@ -992,6 +992,8 @@ public class CameraButton extends View {
 
     /**
      * Sets an listener used to be notified about state changes
+     *
+     * @param listener new listener to observe state changes
      */
     public void setOnStateChangeListener(@Nullable OnStateChangeListener listener) {
         mStateListener = listener;
@@ -999,6 +1001,8 @@ public class CameraButton extends View {
 
     /**
      * Sets an listener used to be notified about photo-related events
+     *
+     * @param listener new listener to observe photo events
      */
     public void setOnPhotoEventListener(@Nullable OnPhotoEventListener listener) {
         mPhotoListener = listener;
@@ -1006,6 +1010,8 @@ public class CameraButton extends View {
 
     /**
      * Sets an listener used to be notified about video-related events
+     *
+     * @param listener new listener to observe video events
      */
     public void setOnVideoEventListener(@Nullable OnVideoEventListener listener) {
         mVideoListener = listener;
@@ -1013,13 +1019,15 @@ public class CameraButton extends View {
 
     /**
      * Sets an listener used to be notified about progress changes
+     *
+     * @param listener new listener to observe progress
      */
     public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
         mProgressListener = listener;
     }
 
     /**
-     * Returns the radius of inner circle in pixels
+     * @return the radius of inner circle in pixels
      */
     @Px
     public int getMainCircleRadius() {
@@ -1028,6 +1036,8 @@ public class CameraButton extends View {
 
     /**
      * Sets an inner circle radius in pixels
+     *
+     * @param radius new radius in pixels
      */
     public void setMainCircleRadius(@Px int radius) {
         mMainCircleRadius = Constraints.checkDimension(radius);
@@ -1035,7 +1045,7 @@ public class CameraButton extends View {
     }
 
     /**
-     * Returns the radius in pixels of inner circle when button is expanded
+     * @return the radius in pixels of inner circle when button is expanded
      */
     @Px
     public int getMainCircleRadiusExpanded() {
@@ -1044,6 +1054,8 @@ public class CameraButton extends View {
 
     /**
      * Sets the radius of inner circle when button is expanded
+     *
+     * @param radius new radius in pixels
      */
     public void setMainCircleRadiusExpanded(@Px int radius) {
         mMainCircleRadiusExpanded = Constraints.checkDimension(radius);
@@ -1136,29 +1148,57 @@ public class CameraButton extends View {
         mCollapseDuration = Constraints.checkDuration(duration);
     }
 
+    /**
+     * @return hold delay after which button starts expanding
+     */
     @IntRange(from = 1)
     public long getExpandDelay() {
         return mExpandDelay;
     }
 
+    /**
+     * Sets a hold delay after which button starts expanding
+     * Used only in {@link Mode#ALL}
+     *
+     * @param delay duration is milliseconds
+     */
     public void setExpandDelay(@IntRange(from = 1) long delay) {
         mExpandDelay = Constraints.checkDuration(delay);
     }
 
+    /**
+     * @return a duration after which button will automatically start collapsing
+     */
     @IntRange(from = 1)
     public long getVideoDuration() {
         return mVideoDuration;
     }
 
+    /**
+     * Sets a duration after which button will automatically start collapsing
+     *
+     * @param duration new duration in milliseconds
+     */
     public void setVideoDuration(@IntRange(from = 1) long duration) {
         mVideoDuration = Constraints.checkDuration(duration);
     }
 
+    /**
+     * @return how much times faster gradient rotates comparatively to progress
+     */
     @FloatRange(from = 0, fromInclusive = false)
     public float getGradientRotationMultiplier() {
         return mGradientRotationMultiplier;
     }
 
+    /**
+     * Sets how much times faster gradient rotates comparatively
+     * to progress of the progress arc
+     * <p>
+     * By default is 1.75.
+     *
+     * @param multiplier new value
+     */
     public void setGradientRotationMultiplier(
             @FloatRange(from = 0, fromInclusive = false) float multiplier) {
 
@@ -1168,6 +1208,9 @@ public class CameraButton extends View {
         mGradientRotationMultiplier = multiplier;
     }
 
+    /**
+     * @return current state of the button
+     */
     @NonNull
     public State getState() {
         return mCurrentState;
@@ -1182,17 +1225,26 @@ public class CameraButton extends View {
         mCurrentMode = mode;
     }
 
+    /**
+     * @return an action which is used to collapse the button
+     */
     @Action
     public int getCollapseAction() {
         return mCollapseAction;
     }
 
+    /**
+     * Sets an action which will collapse the button
+     * By default uses {@link Action#RELEASE}
+     *
+     * @param action new action flag
+     */
     public void setCollapseAction(@Action int action) {
         mCollapseAction = action;
     }
 
     /**
-     * Returns whatever consistency of the button should be validated during the first `onDraw`
+     * @return whatever consistency of the button should be validated during the first `onDraw`
      */
     public boolean shouldCheckConsistency() {
         return mShouldCheckConsistency;
@@ -1200,21 +1252,32 @@ public class CameraButton extends View {
 
     /**
      * Sets whatever consistency of the button should be validated during first `onDraw`
+     *
+     * @param checkConsistency new value
      */
     public void setShouldCheckConsistency(boolean checkConsistency) {
         mShouldCheckConsistency = checkConsistency;
     }
 
+    /**
+     * @return an size of the icons in pixels which are drawn inside the button
+     */
+    @Px
     public int getIconSize() {
         return mIconSize;
     }
 
+    /**
+     * Sets an size of the icons which are drawn inside the button
+     *
+     * @param iconSize new size in pixels
+     */
     public void setIconSize(@Px int iconSize) {
         mIconSize = Constraints.checkDimension(iconSize);
     }
 
     /**
-     * Returns duration about how long one icon will be fully scrolled
+     * @return duration about how long one icon will be fully scrolled
      */
     public long getIconScrollDuration() {
         return mIconScrollDuration;
@@ -1225,6 +1288,8 @@ public class CameraButton extends View {
      * <p>
      * If icons are about to be scrolled in intermediate position like 0.5f,
      * then duration of scroll will be pro-rata (like duration / 0.5f)
+     *
+     * @param duration new scroll duration
      */
     public void setIconScrollDuration(long duration) {
         mIconScrollDuration = Constraints.checkDuration(duration);
@@ -1298,7 +1363,7 @@ public class CameraButton extends View {
 
         /**
          * Describes state in which user presses and holds button for short period of time
-         * or for long time in case if {@link CameraButton#getMode()} is {@link Mode#PHOTO}
+         * or for long time in case if {@link #getMode()} is {@link Mode#PHOTO}
          */
         PRESSED,
 
