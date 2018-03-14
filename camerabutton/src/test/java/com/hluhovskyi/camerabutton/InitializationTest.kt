@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class)
-class CameraButtonInitializationTest {
+class InitializationTest {
 
     @Test
     fun testMainCircleRadiusDefaultInitializedCorrect() {

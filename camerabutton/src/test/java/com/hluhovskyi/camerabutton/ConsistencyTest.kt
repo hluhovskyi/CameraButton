@@ -28,7 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 
 @RunWith(RobolectricTestRunner::class)
-class CameraButtonConsistencyTest {
+class ConsistencyTest {
 
     private lateinit var canvas: Canvas
     private lateinit var button: CameraButton
