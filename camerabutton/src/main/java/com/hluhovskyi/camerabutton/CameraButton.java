@@ -957,7 +957,10 @@ public class CameraButton extends View {
         Log.v(TAG, "dispatchStateChange " + mCurrentState + " -> " + state.name());
 
         if (mStateListener != null) {
-            mStateListener.onStateChanged(state);
+            //In case if button isn't pressable (Mode#VIDEO) don't dispatch PRESSED state
+            if (state != PRESSED || isPressable()) {
+                mStateListener.onStateChanged(state);
+            }
         }
 
         if (mVideoListener != null && isExpandable()) {

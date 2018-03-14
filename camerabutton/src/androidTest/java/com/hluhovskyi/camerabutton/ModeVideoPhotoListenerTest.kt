@@ -24,10 +24,9 @@ import com.hluhovskyi.camerabutton.util.release
 import com.hluhovskyi.camerabutton.util.waitFor
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyZeroInteractions
 
-class ModePhotoPhotoListenerTest : BaseStateTest() {
+class ModeVideoPhotoListenerTest : BaseStateTest() {
 
     @Mock
     private lateinit var listener: CameraButton.OnPhotoEventListener
@@ -36,18 +35,36 @@ class ModePhotoPhotoListenerTest : BaseStateTest() {
         super.setUp()
 
         activityRule.activity.button.apply {
-            mode = CameraButton.Mode.PHOTO
+            mode = CameraButton.Mode.VIDEO
             setOnPhotoEventListener(listener)
         }
     }
 
     @Test
-    fun onHoldAndRelease() {
+    fun onClick() {
+        onView(withId(buttonId()))
+                .perform(click())
+
+        verifyZeroInteractions(listener)
+    }
+
+    @Test
+    fun onShortHoldAndRelease() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDelay() + expandDuration()))
+                .perform(waitFor(expandDelay() / 2))
                 .perform(release())
 
-        verify(listener).onClick()
+        verifyZeroInteractions(listener)
+    }
+
+    @Test
+    fun onHoldAndReleaseStartExpanding() {
+        onView(withId(buttonId()))
+                .perform(pressAndHold())
+                .perform(waitFor(expandDelay()))
+                .perform(release())
+
+        verifyZeroInteractions(listener)
     }
 }

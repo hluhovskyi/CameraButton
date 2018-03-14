@@ -17,37 +17,36 @@
 package com.hluhovskyi.camerabutton
 
 import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import com.hluhovskyi.camerabutton.util.pressAndHold
 import com.hluhovskyi.camerabutton.util.release
 import com.hluhovskyi.camerabutton.util.waitFor
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
-class ModePhotoPhotoListenerTest : BaseStateTest() {
+class ModeVideoVideoListenerTest : BaseStateTest() {
 
     @Mock
-    private lateinit var listener: CameraButton.OnPhotoEventListener
+    private lateinit var listener: CameraButton.OnVideoEventListener
 
     override fun setUp() {
         super.setUp()
 
         activityRule.activity.button.apply {
-            mode = CameraButton.Mode.PHOTO
-            setOnPhotoEventListener(listener)
+            mode = CameraButton.Mode.VIDEO
+            setOnVideoEventListener(listener)
         }
     }
 
     @Test
-    fun onHoldAndRelease() {
+    fun onHoldAndReleaseWithExpandDuration() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDelay() + expandDuration()))
+                .perform(waitFor(expandDuration()))
                 .perform(release())
 
-        verify(listener).onClick()
+        verify(listener).onStart()
+        verify(listener).onFinish()
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Artem Glugovsky
+ * Copyright (C) 2018 Artem Hluhovskyi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class ModePhotoVideoListenerTest : BaseStateTest() {
     }
 
     @Test
-    fun onHoldAndReleaseWhenExpanded() {
+    fun onHoldAndReleaseWithExpandDelay() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
                 .perform(waitFor(expandDelay() + expandDuration()))

@@ -22,32 +22,51 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import com.hluhovskyi.camerabutton.util.pressAndHold
 import com.hluhovskyi.camerabutton.util.release
 import com.hluhovskyi.camerabutton.util.waitFor
+import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.Mockito.never
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 
-class ModePhotoPhotoListenerTest : BaseStateTest() {
+class ModeVideoStateListenerTest : BaseStateTest() {
 
     @Mock
-    private lateinit var listener: CameraButton.OnPhotoEventListener
+    private lateinit var listener: CameraButton.OnStateChangeListener
+    @Captor
+    private lateinit var stateCaptor: ArgumentCaptor<CameraButton.State>
 
     override fun setUp() {
         super.setUp()
 
-        activityRule.activity.button.apply {
-            mode = CameraButton.Mode.PHOTO
-            setOnPhotoEventListener(listener)
+        activityRule.activity.button.apply{
+            mode = CameraButton.Mode.VIDEO
+            setOnStateChangeListener(listener)
         }
     }
 
     @Test
-    fun onHoldAndRelease() {
+    fun onClick() {
+        onView(withId(buttonId()))
+                .perform(click())
+
+        verify(listener, times(2)).onStateChanged(stateCaptor.capture())
+
+        assertEquals(CameraButton.State.START_EXPANDING, stateCaptor.allValues[0])
+        assertEquals(CameraButton.State.START_COLLAPSING, stateCaptor.allValues[1])
+    }
+
+    @Test
+    fun onShortHold() {
         onView(withId(buttonId()))
                 .perform(pressAndHold())
-                .perform(waitFor(expandDelay() + expandDuration()))
                 .perform(release())
 
-        verify(listener).onClick()
+        verify(listener, times(2)).onStateChanged(stateCaptor.capture())
+
+        assertEquals(CameraButton.State.START_EXPANDING, stateCaptor.allValues[0])
+        assertEquals(CameraButton.State.START_COLLAPSING, stateCaptor.allValues[1])
     }
 }
