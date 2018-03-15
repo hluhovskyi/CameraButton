@@ -22,7 +22,7 @@ android {
 
 dependencies {
     debugApi project(":camerabutton")
-    releaseApi("com.dewarder:camerabutton:1.0.1")
+    releaseApi("com.hluhovskyi:camerabutton:2.0.0-RC1")
 
     api "io.reactivex.rxjava2:rxjava:$rxjava_version"
     api "io.reactivex.rxjava2:rxandroid:$rxjava_android_version"

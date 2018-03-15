@@ -24,7 +24,8 @@ android {
 
 dependencies {
     debugApi project(':camerabutton-rxjava2')
-    releaseApi("com.dewarder:camerabutton-rxjava2:1.0.0")
+    releaseApi("com.hluhovskyi:camerabutton:2.0.0-RC1")
+    releaseApi("com.hluhovskyi:camerabutton-rxjava2:2.0.0-RC1")
 
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
