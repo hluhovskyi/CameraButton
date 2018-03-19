@@ -21,16 +21,36 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hluhovskyi.camerabutton.CameraButton;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends BaseActivity {
 
     private static final long ANIMATION_TRANSLATION_DURATION = 200L;
+
+    static final List<String> CAMERA_MODE_NAMES = Collections.unmodifiableList(Arrays.asList(
+            "Normal",
+            "Boomerang",
+            "Superzoom",
+            "Rewind",
+            "Hands-free",
+            "Normal",
+            "Boomerang",
+            "Superzoom",
+            "Rewind",
+            "Hands-free"
+    ));
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,42 +59,11 @@ public class MainActivity extends BaseActivity {
                 BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
                 BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
         });
 
@@ -104,33 +93,100 @@ public class MainActivity extends BaseActivity {
 
         getCameraButton().setOnStateChangeListener(this::onStateChanged);
 
-        RecyclerView recycler = findViewById(R.id.recycler);
-        recycler.setAdapter(new RecyclerView.Adapter() {
-            @NonNull
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                TextView tv = new TextView(parent.getContext());
-                tv.setText("Item");
-                return new RecyclerView.ViewHolder(tv) {
-                };
-            }
+        new LinearSnapHelper().attachToRecyclerView(getModesRecycler());
 
-            @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            }
+        getModesRecycler().setAdapter(new CameraModeAdapter());
+        getModesRecycler().setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
 
-            @Override
-            public int getItemCount() {
-                return 20;
-            }
-        });
-        recycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        /*getModesRecycler().addOnScrollListener(new RecyclerView.OnScrollListener() {
+
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                float range = recyclerView.computeHorizontalScrollRange();
-                float offset = recyclerView.computeHorizontalScrollOffset();
-                getCameraButton().setIconsPosition(20 * offset / range);
+                if (!(recyclerView.getLayoutManager() instanceof LinearLayoutManager)) {
+                    throw new IllegalStateException("Only LinearLayoutManager is supported");
+                }
+
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int range = recyclerView.computeHorizontalScrollRange();
+                int extent = recyclerView.computeHorizontalScrollExtent();
+                int offset = recyclerView.computeHorizontalScrollOffset();
+                int first = manager.findFirstVisibleItemPosition();
+                int last = manager.findLastVisibleItemPosition();
+
+                View firstView = manager.findViewByPosition(first);
+
+
+                Log.v("Recycler", "range = " + range +
+                        ", extent = " + extent +
+                        ", offset = " + offset +
+                        ", first = " + first +
+                        ", last = " + last +
+                        ", viewLeft = " + firstView.getLeft() +
+                        ", width = " + firstView.getWidth());
+
+
+                float position = first + (float) Math.abs(Math.abs(firstView.getLeft()) - recyclerView.getPaddingLeft()) / firstView.getWidth();
+
+                Log.v("Recycler", "position = " + position);
+
+                getCameraButton().setIconsPosition(position);
+            }
+        });*/
+        getModesRecycler().post(() -> {
+            View view = getModesRecycler().getLayoutManager().findViewByPosition(0);
+            int padding = getModesRecycler().getWidth() / 2 - 1;
+            getModesRecycler().setPadding(
+                    padding, 0, padding, 0
+            );
+        });
+        getModesRecycler().addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            int maxCenter = 0;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (!(recyclerView.getLayoutManager() instanceof LinearLayoutManager)) {
+                    throw new IllegalStateException("Only LinearLayoutManager is supported");
+                }
+
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                int offset = recyclerView.computeHorizontalScrollOffset();
+                int first = manager.findFirstVisibleItemPosition();
+
+                Log.v("Recycler", "BEGIN -------------->");
+
+                View firstView = manager.findViewByPosition(first);
+                if (firstView == null) {
+                    Log.v("Recycler", "I DONT GET A FUCK WHAT IS GOING ON HERE, position = " + first);
+                    return;
+                }
+
+                int firstViewCenter = firstView.getWidth() / 2;
+
+                float diff = 0;
+                if (recyclerView.getPaddingLeft() != 0) {
+                    diff = Math.abs(recyclerView.getWidth() / 2f - recyclerView.getPaddingLeft() - firstViewCenter);
+                } else {
+                    diff = 0;
+                }
+
+                Log.v("Recycler", "first [left=" + firstView.getLeft()
+                        + ",width=" + firstView.getWidth()
+                        + ",paddingLeft=" + recyclerView.getPaddingLeft()
+                        + "]");
+                Log.v("Recycler", "END <--------------");
+
+                float position = first - 0.5f + Math.abs((float) (firstView.getLeft() - recyclerView.getPaddingLeft() + diff - firstViewCenter) / firstView.getWidth());
+                getCameraButton().setIconsPosition(position);
+
+            }
+        });
+
+        getModesRecycler().getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
             }
         });
     }
@@ -139,9 +195,11 @@ public class MainActivity extends BaseActivity {
         if (state == CameraButton.State.START_EXPANDING) {
             translateToRight(getFlashSwitch(), false);
             translateToLeft(getCameraSwitch(), false);
+            translateToBottom(getModesRecycler(), false);
         } else if (state == CameraButton.State.START_COLLAPSING) {
             translateToRight(getFlashSwitch(), true);
             translateToLeft(getCameraSwitch(), true);
+            translateToBottom(getModesRecycler(), true);
         }
     }
 
@@ -168,5 +226,44 @@ public class MainActivity extends BaseActivity {
         view.animate().translationX(x)
                 .alpha(alpha)
                 .setDuration(ANIMATION_TRANSLATION_DURATION);
+    }
+
+    private static void translateToBottom(View view, boolean show) {
+        float y = show ? 0f : view.getHeight();
+        float alpha = show ? 1f : 0f;
+        view.animate().translationY(y)
+                .alpha(alpha)
+                .setDuration(ANIMATION_TRANSLATION_DURATION);
+    }
+
+    private static class CameraModeAdapter extends RecyclerView.Adapter<CameraModeAdapter.ViewHolder> {
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_camera_mode, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.mName.setText(CAMERA_MODE_NAMES.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return CAMERA_MODE_NAMES.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+
+            final TextView mName;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                mName = itemView.findViewById(R.id.name);
+            }
+        }
     }
 }

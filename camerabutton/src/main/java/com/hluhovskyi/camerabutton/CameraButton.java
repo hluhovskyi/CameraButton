@@ -937,6 +937,10 @@ public class CameraButton extends View {
             throw new IllegalStateException(
                     "`setIcons` must be called before `scrollIconsToPosition`/`setIconsPosition`");
         }
+        if (position < 0) {
+            throw new IllegalStateException(
+                    "`position` (" + position + ") must be positive number");
+        }
         if (position > mIconShaders.length) {
             throw new IllegalStateException(
                     "`position` (" + position + ") can't be greater than icons count (" + mIconShaders.length + ")");

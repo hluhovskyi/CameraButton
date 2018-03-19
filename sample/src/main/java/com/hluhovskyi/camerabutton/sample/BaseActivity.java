@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private View mFlashSwitch;
     private View mCameraSwitch;
+    private RecyclerView mModesRecycler;
 
     private Fotoapparat mCameraManager;
     private boolean mIsFlashEnabled;
@@ -57,6 +59,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         mFlashSwitch = findViewById(R.id.flash_switch);
         mFlashSwitch.setOnClickListener(v -> switchFlash());
+        mModesRecycler = findViewById(R.id.recycler);
 
         mCameraSwitch = findViewById(R.id.camera_switch);
         mCameraSwitch.setOnClickListener(v -> switchCamera());
@@ -77,7 +80,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE
                 && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
             openCamera();
+            mCameraManager.start();
         }
     }
 
@@ -105,10 +110,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void switchFlash() {
         mCameraManager.updateParameters(UpdateRequest.builder()
-                                                .flash(mIsFlashEnabled
-                                                               ? FlashSelectors.off()
-                                                               : FlashSelectors.torch())
-                                                .build());
+                .flash(mIsFlashEnabled
+                        ? FlashSelectors.off()
+                        : FlashSelectors.torch())
+                .build());
         mIsFlashEnabled = !mIsFlashEnabled;
     }
 
@@ -119,6 +124,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     @NonNull
     public CameraButton getCameraButton() {
         return mCameraButton;
+    }
+
+    public RecyclerView getModesRecycler() {
+        return mModesRecycler;
     }
 
     @NonNull

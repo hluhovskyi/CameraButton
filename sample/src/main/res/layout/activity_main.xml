@@ -14,8 +14,8 @@
 
     <com.hluhovskyi.camerabutton.CameraButton
         android:id="@+id/camera_button"
-        android:layout_width="@dimen/cb_layout_width_default"
-        android:layout_height="@dimen/cb_layout_height_default"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="24dp"
         app:cb_collapse_action="click"
@@ -52,6 +52,7 @@
         android:id="@+id/recycler"
         android:layout_width="0dp"
         android:layout_height="24dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
