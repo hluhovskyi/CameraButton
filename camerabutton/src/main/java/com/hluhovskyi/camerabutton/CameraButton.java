@@ -197,6 +197,8 @@ public class CameraButton extends View {
     private final Paint mProgressArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     //Sizes
+    private int mDefaultWidth;
+    private int mDefaultHeight;
     private int mMainCircleRadius;
     private int mMainCircleRadiusExpanded;
     private int mStrokeWidth;
@@ -286,6 +288,9 @@ public class CameraButton extends View {
 
         TypedArray array = context.obtainStyledAttributes(
                 attrs, R.styleable.CameraButton, defStyleAttr, defStyleRes);
+
+        mDefaultWidth = getResources().getDimensionPixelSize(R.dimen.cb_layout_width_default);
+        mDefaultHeight = getResources().getDimensionPixelSize(R.dimen.cb_layout_height_default);
 
         mMainCircleRadius = getDimension(
                 context, array,
@@ -647,6 +652,28 @@ public class CameraButton extends View {
             mMainCirclePaint.setColor(mMainCircleColor);
             mStrokePaint.setColor(mStrokeColor);
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        int width;
+        if (widthMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED) {
+            width = mDefaultWidth;
+        } else {
+            width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        }
+
+        int height;
+        if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED) {
+            height = mDefaultHeight;
+        } else {
+            height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        }
+
+        setMeasuredDimension(width, height);
     }
 
     @Override
