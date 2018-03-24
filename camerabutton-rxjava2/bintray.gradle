@@ -20,7 +20,7 @@ publish {
     userOrg = publish_userOrg
     groupId = publish_groupId
     artifactId = 'camerabutton-rxjava2'
-    publishVersion = '2.0.0-RC1'
+    publishVersion = '2.0.0-RC2'
     desc = 'RxJava extensions for CameraButton'
     website = publish_website
 }

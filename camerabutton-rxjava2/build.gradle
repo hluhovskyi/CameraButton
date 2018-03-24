@@ -3,11 +3,11 @@ apply from: 'bintray.gradle'
 
 android {
     compileSdkVersion sdk_version
+
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion sdk_version
         versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -22,7 +22,8 @@ android {
 
 dependencies {
     debugApi project(":camerabutton")
-    releaseApi("com.hluhovskyi:camerabutton:2.0.0-RC1")
+
+    api "com.hluhovskyi:camerabutton:2.0.0-RC2"
 
     api "io.reactivex.rxjava2:rxjava:$rxjava_version"
     api "io.reactivex.rxjava2:rxandroid:$rxjava_android_version"
