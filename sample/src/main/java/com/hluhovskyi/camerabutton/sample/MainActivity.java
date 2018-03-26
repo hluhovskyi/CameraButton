@@ -21,15 +21,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hluhovskyi.camerabutton.CameraButton;
+import com.hluhovskyi.camerabutton.recyclerview.CameraButtonRecyclerView;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,102 +92,12 @@ public class MainActivity extends BaseActivity {
 
         getCameraButton().setOnStateChangeListener(this::onStateChanged);
 
-        new LinearSnapHelper().attachToRecyclerView(getModesRecycler());
-
         getModesRecycler().setAdapter(new CameraModeAdapter());
         getModesRecycler().setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
 
-        /*getModesRecycler().addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (!(recyclerView.getLayoutManager() instanceof LinearLayoutManager)) {
-                    throw new IllegalStateException("Only LinearLayoutManager is supported");
-                }
-
-                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int range = recyclerView.computeHorizontalScrollRange();
-                int extent = recyclerView.computeHorizontalScrollExtent();
-                int offset = recyclerView.computeHorizontalScrollOffset();
-                int first = manager.findFirstVisibleItemPosition();
-                int last = manager.findLastVisibleItemPosition();
-
-                View firstView = manager.findViewByPosition(first);
-
-
-                Log.v("Recycler", "range = " + range +
-                        ", extent = " + extent +
-                        ", offset = " + offset +
-                        ", first = " + first +
-                        ", last = " + last +
-                        ", viewLeft = " + firstView.getLeft() +
-                        ", width = " + firstView.getWidth());
-
-
-                float position = first + (float) Math.abs(Math.abs(firstView.getLeft()) - recyclerView.getPaddingLeft()) / firstView.getWidth();
-
-                Log.v("Recycler", "position = " + position);
-
-                getCameraButton().setIconsPosition(position);
-            }
-        });*/
-        getModesRecycler().post(() -> {
-            View view = getModesRecycler().getLayoutManager().findViewByPosition(0);
-            int padding = getModesRecycler().getWidth() / 2 - 1;
-            getModesRecycler().setPadding(
-                    padding, 0, padding, 0
-            );
-        });
-        getModesRecycler().addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            int maxCenter = 0;
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (!(recyclerView.getLayoutManager() instanceof LinearLayoutManager)) {
-                    throw new IllegalStateException("Only LinearLayoutManager is supported");
-                }
-
-                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-
-                int offset = recyclerView.computeHorizontalScrollOffset();
-                int first = manager.findFirstVisibleItemPosition();
-
-                Log.v("Recycler", "BEGIN -------------->");
-
-                View firstView = manager.findViewByPosition(first);
-                if (firstView == null) {
-                    Log.v("Recycler", "I DONT GET A FUCK WHAT IS GOING ON HERE, position = " + first);
-                    return;
-                }
-
-                int firstViewCenter = firstView.getWidth() / 2;
-
-                float diff = 0;
-                if (recyclerView.getPaddingLeft() != 0) {
-                    diff = Math.abs(recyclerView.getWidth() / 2f - recyclerView.getPaddingLeft() - firstViewCenter);
-                } else {
-                    diff = 0;
-                }
-
-                Log.v("Recycler", "first [left=" + firstView.getLeft()
-                        + ",width=" + firstView.getWidth()
-                        + ",paddingLeft=" + recyclerView.getPaddingLeft()
-                        + "]");
-                Log.v("Recycler", "END <--------------");
-
-                float position = first - 0.5f + Math.abs((float) (firstView.getLeft() - recyclerView.getPaddingLeft() + diff - firstViewCenter) / firstView.getWidth());
-                getCameraButton().setIconsPosition(position);
-
-            }
-        });
-
-        getModesRecycler().getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-            }
-        });
+        CameraButtonRecyclerView.newBuilder(getCameraButton(), getModesRecycler())
+                .snap()
+                .attach();
     }
 
     private void onStateChanged(CameraButton.State state) {
