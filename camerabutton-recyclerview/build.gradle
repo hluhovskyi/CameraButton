@@ -8,10 +8,14 @@ android {
         targetSdkVersion sdk_version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
 
+    libraryVariants.all { variant ->
+        variant.generateBuildConfig.enabled = false
     }
 }
 
 dependencies {
+    api project(":camerabutton")
     api "com.android.support:recyclerview-v7:$support_library_version"
 }
