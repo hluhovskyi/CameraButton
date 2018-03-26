@@ -1,1 +1,1 @@
-include ':sample', ':camerabutton', ':camerabutton-rxjava2', ':camerabutton-rxjava2-kotlin'
+include ':sample', ':camerabutton', ':camerabutton-rxjava2', ':camerabutton-rxjava2-kotlin', ':camerabutton-recyclerview'
