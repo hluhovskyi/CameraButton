@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply from: 'bintray.gradle'
 
 android {
     compileSdkVersion sdk_version
@@ -35,5 +34,6 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_core_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "org.mockito:mockito-android:2.15.0"
-
 }
+
+apply from: pluginDeps.publish

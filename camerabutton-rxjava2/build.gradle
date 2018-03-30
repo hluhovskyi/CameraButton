@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply from: 'bintray.gradle'
 
 android {
     compileSdkVersion sdk_version
@@ -28,3 +27,5 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_core_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
 }
+
+apply from: pluginDeps.publish

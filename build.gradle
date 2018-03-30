@@ -18,9 +18,9 @@ buildscript {
     }
 
     ext {
-        publish_userOrg = 'hluhovskyi'
-        publish_groupId = 'com.hluhovskyi'
-        publish_website = 'https://github.com/hluhovskyi/CameraButton'
+        pluginDeps = [
+                publish: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+        ]
     }
 
     repositories {
@@ -32,7 +32,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.novoda:bintray-release:0.8.0'
     }
 }
 
