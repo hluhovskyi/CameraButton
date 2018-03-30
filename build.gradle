@@ -1,11 +1,9 @@
 buildscript {
-
     ext {
         min_sdk_version = 15
         sdk_version = 27
-    }
 
-    ext {
+        android_plugin_version = '3.1.0'
         kotlin_version = '1.2.31'
         support_library_version = '27.1.0'
         rxjava_version = '2.1.9'
@@ -15,11 +13,11 @@ buildscript {
         robolectric_version = '3.5.1'
         espresso_core_version = '3.0.1'
         test_runner_version = '1.0.1'
-    }
 
-    ext {
         pluginDeps = [
-                publish: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+                android: "com.android.tools.build:gradle:$android_plugin_version",
+                kotlin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version",
+                publish: "https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle"
         ]
     }
 
@@ -30,8 +28,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath pluginDeps.android
+        classpath pluginDeps.kotlin
     }
 }
 
