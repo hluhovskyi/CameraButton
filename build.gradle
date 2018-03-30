@@ -17,7 +17,7 @@ buildscript {
         pluginDeps = [
                 android: "com.android.tools.build:gradle:$android_plugin_version",
                 kotlin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version",
-                publish: "https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle"
+                publish: rootProject.file("gradle/gradle-mvn-push.gradle")
         ]
     }
 

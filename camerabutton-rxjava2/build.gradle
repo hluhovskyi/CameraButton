@@ -16,9 +16,7 @@ android {
 }
 
 dependencies {
-    debugApi project(":camerabutton")
-
-    api "com.hluhovskyi:camerabutton:2.0.0-RC2"
+    api project(":camerabutton")
 
     api "io.reactivex.rxjava2:rxjava:$rxjava_version"
     api "io.reactivex.rxjava2:rxandroid:$rxjava_android_version"
