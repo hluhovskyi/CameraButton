@@ -46,6 +46,7 @@ final class TypedArrayHelper {
     }
 
     @ColorInt
+    @SuppressWarnings("deprecation")
     static int getColor(Context context,
                         TypedArray array,
                         @StyleableRes int attr,

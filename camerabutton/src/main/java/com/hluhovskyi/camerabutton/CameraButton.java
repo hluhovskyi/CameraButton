@@ -101,7 +101,7 @@ public class CameraButton extends View {
          * Invoked when user interaction with button is treated as "click":
          * - User simply clicks it
          * - User holds it less than {@link #getExpandDelay()}
-         * - Button starts expanding but immediately released (holdDuration < expandDelay + expandDuration)
+         * - Button starts expanding but immediately released (holdDuration &lt; expandDelay + expandDuration)
          * - Every interaction when {@link #getMode()} is {@link Mode#PHOTO}
          */
         void onClick();
@@ -458,6 +458,7 @@ public class CameraButton extends View {
                 } else if (mCurrentState == PRESSED) {
                     removeCallbacks(mExpandMessage);
                     dispatchStateChange(DEFAULT);
+                    performClick();
 
                     makePaintColorsHovered(false);
                     invalidate();
@@ -1381,16 +1382,16 @@ public class CameraButton extends View {
      * Describes states in which button can be. Possible lifecycle:
      * <p>
      * Mode.PHOTO:
-     * DEFAULT -> PRESSED -> DEFAULT
+     * DEFAULT -&gt; PRESSED -&gt; DEFAULT
      * <p>
      * Mode.VIDEO:
-     * DEFAULT -> START_EXPANDING -> EXPANDED -> START_COLLAPSING -> DEFAULT
-     * DEFAULT -> START_EXPANDING -> EXPANDED -[cancel]-> DEFAULT
+     * DEFAULT -&gt; START_EXPANDING -&gt; EXPANDED -&gt; START_COLLAPSING -&gt; DEFAULT
+     * DEFAULT -&gt; START_EXPANDING -&gt; EXPANDED -[cancel]-&gt; DEFAULT
      * <p>
      * Mode.ALL:
-     * DEFAULT -> PRESSED -> DEFAULT
-     * DEFAULT -> START_EXPANDING -> EXPANDED -> START_COLLAPSING -> DEFAULT
-     * DEFAULT -> START_EXPANDING -> EXPANDED -[cancel]-> DEFAULT
+     * DEFAULT -&gt; PRESSED -&gt; DEFAULT
+     * DEFAULT -&gt; START_EXPANDING -&gt; EXPANDED -&gt; START_COLLAPSING -&gt; DEFAULT
+     * DEFAULT -&gt; START_EXPANDING -&gt; EXPANDED -[cancel]-&gt; DEFAULT
      */
     public enum State {
 
