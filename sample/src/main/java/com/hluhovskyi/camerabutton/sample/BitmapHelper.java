@@ -16,6 +16,7 @@
 
 package com.hluhovskyi.camerabutton.sample;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,6 +26,10 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 
+/**
+ * Used only for retrieving vector drawables from resources
+ * Not included to library due to dependency on support-v4
+ */
 final class BitmapHelper {
 
     static Bitmap getBitmap(Context context, @DrawableRes int drawableId) {
@@ -32,6 +37,7 @@ final class BitmapHelper {
         return getBitmap(drawable);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     static Bitmap getBitmap(Drawable drawable) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(drawable)).mutate();

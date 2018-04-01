@@ -4,7 +4,7 @@ android:
   components:
     - tools
     - platform-tools
-    - build-tools-26.0.2
+    - build-tools-27.0.3
     - android-27
 
 jdk:
@@ -14,7 +14,10 @@ before_script:
 - chmod +x gradlew
 
 script:
-- ./gradlew clean check -x lint
+- ./gradlew clean check
+
+after_script:
+- ./gradlew clean uploadArchives -x androidJavdocs
 
 sudo: true
 

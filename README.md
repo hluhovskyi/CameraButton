@@ -1,6 +1,6 @@
 # CameraButton
 
-[![Build Status](https://travis-ci.org/dewarder/CameraButton.svg?branch=master)](https://travis-ci.org/dewarder/CameraButton) [ ![Download](https://api.bintray.com/packages/dewarder/maven/camerabutton/images/download.svg) ](https://bintray.com/dewarder/maven/camerabutton/_latestVersion)
+[![Build Status](https://travis-ci.org/hluhovskyi/CameraButton.svg?branch=master)](https://travis-ci.org/hluhovskyi/CameraButton)
 
 Instagram-like button for taking photos or recording videos.
 
@@ -181,7 +181,7 @@ To set values programmatically you have to call `setProgressArcColors` with **ar
 ## License
 
 ```
-Copyright (C) 2017 Artem Hluhovskyi
+Copyright (C) 2018 Artem Hluhovskyi
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
