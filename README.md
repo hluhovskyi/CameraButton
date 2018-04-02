@@ -24,7 +24,7 @@ Please, feel free to open issues you are stuck with. PRs are also welcome :)
 1. Add `CameraButton` to your xml markup
 
    ```xml
-    <com.dewarder.camerabutton.CameraButton
+    <com.hluhovskyi.camerabutton.CameraButton
         android:id="@+id/camera_button"
         android:layout_width="@dimen/cb_layout_width_default"
         android:layout_height="@dimen/cb_layout_height_default" />
@@ -58,7 +58,7 @@ Please, feel free to open issues you are stuck with. PRs are also welcome :)
 
 3. Enjoy!
   
-  ![Check full example](https://github.com/dewarder/CameraButton/tree/master/sample)
+  ![Check full example](https://github.com/hluhovskyi/CameraButton/tree/master/sample)
   
   Take into account that you can get `ConsistencyValidationException` in case some part of the button overlaps other one or crosses view's boundaries. If you don't need "pixel-perfect" checks you can disable them by calling `button.shouldCheckConsistency(false)` otherwise you have to set correct sizes.
   
@@ -167,7 +167,7 @@ To set values via xml you have to define all colors separately and **merge their
     
     ...
     
-    <com.dewarder.camerabutton.CameraButton
+    <com.hluhovskyi.camerabutton.CameraButton
         ...
         app:cb_progress_arc_colors="@color/my_progress_colors"/>  
    ```
