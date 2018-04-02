@@ -5,5 +5,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingEnd="16dp"
+    android:textColor="#666"
     android:paddingStart="16dp"
     tools:text="Name of mode"/>

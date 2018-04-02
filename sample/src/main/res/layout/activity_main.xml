@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.hluhovskyi.camerabutton.sample.MainActivity">
 
-    <io.fotoapparat.view.CameraView
-        android:id="@+id/camera_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
     <com.hluhovskyi.camerabutton.CameraButton
         android:id="@+id/camera_button"
         android:layout_width="wrap_content"

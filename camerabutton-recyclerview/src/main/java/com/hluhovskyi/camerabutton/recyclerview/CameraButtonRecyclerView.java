@@ -61,6 +61,7 @@ public final class CameraButtonRecyclerView {
 
             if (view == null) {
                 Log.v("Recycler", "I don't get a fuck what is going on here. Position=" + position);
+                log(recyclerView, view);
                 return;
             }
 
@@ -74,6 +75,12 @@ public final class CameraButtonRecyclerView {
             }
 
             float buttonPosition = position - 0.5f + Math.abs((float) (view.getLeft() - recyclerView.getPaddingLeft() + paddingDiff - viewCenter) / view.getWidth());
+            if (buttonPosition < 0) {
+                Log.v("Recycler", "Should be calculated better");
+                log(recyclerView, view);
+                return;
+            }
+
             mCameraButton.setIconsPosition(buttonPosition);
         }
 
@@ -103,12 +110,13 @@ public final class CameraButtonRecyclerView {
          * Helps debug metrics of RecyclerView and first visible view
          */
         private void log(RecyclerView recyclerView, View view) {
-            Log.v("Recycler", "BEGIN -------------->");
-            Log.v("Recycler", "[left=" + view.getLeft()
+            Log.v("Recycler", "BEGIN -------------->/n"
+                    + "[left=" + view.getLeft()
                     + ",width=" + view.getWidth()
                     + ",paddingLeft=" + recyclerView.getPaddingLeft()
-                    + "]");
-            Log.v("Recycler", "END <--------------");
+                    + "]"
+                    + "/nEND <--------------"
+            );
         }
     }
 }

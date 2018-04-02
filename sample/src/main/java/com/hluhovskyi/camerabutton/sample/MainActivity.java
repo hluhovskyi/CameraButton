@@ -39,40 +39,30 @@ public class MainActivity extends BaseActivity {
     private static final long ANIMATION_TRANSLATION_DURATION = 200L;
 
     static final List<String> CAMERA_MODE_NAMES = Collections.unmodifiableList(Arrays.asList(
-            "Normal",
-            "Boomerang",
-            "Superzoom",
-            "Rewind",
-            "Hands-free",
-            "Normal",
-            "Boomerang",
-            "Superzoom",
-            "Rewind",
-            "Hands-free"
+            "Beach",
+            "Business center",
+            "Casino",
+            "Fitness center",
+            "Spa"
     ));
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getCameraButton().setIcons(new Bitmap[]{
-                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_brightness_1_red_28dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_flash_on_red_36dp),
-                BitmapHelper.getBitmap(this, R.drawable.ic_sync_red_36dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_beach_access_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_business_center_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_casino_28dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_fitness_center_24dp),
+                BitmapHelper.getBitmap(this, R.drawable.ic_spa_28dp),
         });
 
-        getCameraButton().setOnPhotoEventListener(() -> {
-            getCameraButton().scrollIconsToPosition(15.5f);
+        getCameraButton().setOnPhotoEventListener(new CameraButton.OnPhotoEventListener() {
+            @Override
+            public void onClick() {
+                makePhoto();
+            }
         });
-
-        getCameraButton().postDelayed(() -> {
-            getCameraButton().cancel(false);
-        }, 3000);
 
         getCameraButton().setOnVideoEventListener(new CameraButton.OnVideoEventListener() {
             @Override
@@ -95,6 +85,12 @@ public class MainActivity extends BaseActivity {
         getModesRecycler().setAdapter(new CameraModeAdapter());
         getModesRecycler().setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
 
+        /*
+         * ATTENTION!
+         *
+         * Usage of method below can trigger blow up process of your phone.
+         * Use it with strong feeling of that risk.
+         */
         CameraButtonRecyclerView.newBuilder(getCameraButton(), getModesRecycler())
                 .snap()
                 .attach();

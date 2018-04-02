@@ -1,19 +1,19 @@
 # CameraButton
 
-[![Build Status](https://travis-ci.org/hluhovskyi/CameraButton.svg?branch=master)](https://travis-ci.org/hluhovskyi/CameraButton)
-
 Instagram-like button for taking photos or recording videos.
 
 <img src="/.github/preview.gif">
+
+[![Build Status](https://travis-ci.org/hluhovskyi/CameraButton.svg?branch=master)](https://travis-ci.org/hluhovskyi/CameraButton)
 
 ## Getting started
 
 Add library as dependency to your `build.gradle`.
 
    ```groovy
-    compile 'com.dewarder:camerabutton:1.0.1'
-    compile 'com.dewarder:camerabutton-rxjava2:1.0.1'
-    compile 'com.dewarder:camerabutton-rxjava2-kotlin:1.0.1'
+    compile 'com.hluhovskyi.camerabutton:camerabutton:2.0.0'
+    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2:2.0.0'
+    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2-kotlin:2.0.0'
    ```
 No need to include all dependencies, choose just one which covers your needs.
 
