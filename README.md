@@ -11,9 +11,9 @@ Instagram-like button for taking photos or recording videos.
 Add library as dependency to your `build.gradle`.
 
    ```groovy
-    compile 'com.hluhovskyi.camerabutton:camerabutton:2.0.0'
-    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2:2.0.0'
-    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2-kotlin:2.0.0'
+    compile 'com.hluhovskyi.camerabutton:camerabutton:2.0.1'
+    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2:2.0.1'
+    compile 'com.hluhovskyi.camerabutton:camerabutton-rxjava2-kotlin:2.0.1'
    ```
 No need to include all dependencies, choose just one which covers your needs.
 
