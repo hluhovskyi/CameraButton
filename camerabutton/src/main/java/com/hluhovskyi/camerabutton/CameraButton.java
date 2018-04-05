@@ -152,7 +152,7 @@ public class CameraButton extends View {
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Mode.ALL, Mode.PHOTO, Mode.VIDEO})
-    @interface Mode {
+    public @interface Mode {
 
         /**
          * Describes mode which handles both photo and video type of actions
@@ -175,7 +175,7 @@ public class CameraButton extends View {
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Action.RELEASE, Action.CLICK})
-    @interface Action {
+    public @interface Action {
         int RELEASE = 0;
         int CLICK = 1;
     }
