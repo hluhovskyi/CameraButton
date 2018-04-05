@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.0.1
+
+- Make `Mode` and `Action` annotations public
+
 ## Version 2.0.0
 
 ### New
