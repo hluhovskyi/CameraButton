@@ -2,7 +2,7 @@
 
 Instagram-like button for taking photos or recording videos.
 
-<img src="/.github/preview.gif">
+<img src="/.github/demo.gif">
 
 [![Build Status](https://travis-ci.org/hluhovskyi/CameraButton.svg?branch=master)](https://travis-ci.org/hluhovskyi/CameraButton)
 
