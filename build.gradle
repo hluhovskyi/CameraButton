@@ -34,6 +34,10 @@ buildscript {
 }
 
 allprojects {
+    tasks.withType(Test).configureEach {
+        forkEvery = 100
+    }
+
     repositories {
         google()
         jcenter()
